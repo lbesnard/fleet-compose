@@ -1,0 +1,9 @@
+# Third-party repos that were gitlinks in dotfiles. Cloned at a pinned commit, gitignored.
+fleet_vendor:
+  beefunk:
+    - {dest: docker-compose/homer/local/assets/icons/homer-icons, repo: "https://github.com/NX211/homer-icons.git", version: 81c1406edba4d9bcfac1574cdd38a5ef9a579f45}
+  brownfunk:
+    - {dest: docker-compose/homer/local/assets/icons/homer-icons, repo: "https://github.com/NX211/homer-icons.git", version: c23d6413b03629d45f80fe8d493224bae38baf23}
+    - {dest: docker-compose/homer-lan/local/assets/icons/homer-icons, repo: "https://github.com/NX211/homer-icons.git", version: c23d6413b03629d45f80fe8d493224bae38baf23}
+    - {dest: docker-compose/explorer, repo: "https://github.com/soyuka/explorer.git", version: 65d856bb11585773c4cd48e81d8529930612f15c}
+    - {dest: docker-compose/ifm, repo: "https://github.com/misterunknown/ifm.git", version: 62e1c9477e0b4f01adcfe2b44ec33d3e6c4d1ced}

@@ -1,0 +1,15 @@
+- hosts: localhost
+  gather_facts: false
+  vars_files: [../vendor.yml]
+  vars:
+    machine: all
+    root: "{{ playbook_dir }}/.."
+  tasks:
+    - name: Clone vendored repos at pinned commits
+      ansible.builtin.git:
+        repo: "{{ it.1.repo }}"
+        dest: "{{ root }}/machines/{{ it.0.key }}/{{ it.1.dest }}"
+        version: "{{ it.1.version }}"
+      loop: "{{ fleet_vendor | dict2items | subelements('value') }}"
+      loop_control: {label: "{{ it.0.key }}/{{ it.1.dest }}", loop_var: it}
+      when: machine == 'all' or machine == it.0.key

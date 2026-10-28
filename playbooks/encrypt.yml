@@ -1,0 +1,33 @@
+# plaintext -> <file>.vault, and refresh the managed block in .gitignore.
+# Only re-encrypts when the content changed (ansible-vault output is salted, so
+# blindly re-encrypting would dirty every .vault file in git).
+- hosts: localhost
+  gather_facts: false
+  vars_files: [../secrets.yml]
+  vars:
+    machine: all
+    root: "{{ playbook_dir }}/.."
+  tasks:
+    - name: Encrypt changed secrets
+      ansible.builtin.include_tasks: encrypt_one.yml
+      loop: "{{ fleet_secrets | dict2items | subelements('value') }}"
+      loop_control: {label: "{{ item.0.key }}/{{ item.1 }}", loop_var: it}
+      when: machine == 'all' or machine == it.0.key
+
+    - name: Keep .gitignore in sync with the manifest
+      ansible.builtin.blockinfile:
+        path: "{{ root }}/.gitignore"
+        marker: "# {mark} MANAGED BY playbooks/encrypt.yml"
+        create: true
+        mode: "0644"
+        block: |
+          {% for m, paths in fleet_secrets.items() %}
+          {% for p in paths %}
+          /machines/{{ m }}/{{ p }}
+          {% endfor %}
+          {% endfor %}
+          {% for m, items in (lookup('ansible.builtin.file', root ~ '/vendor.yml') | from_yaml).fleet_vendor.items() %}
+          {% for v in items %}
+          /machines/{{ m }}/{{ v.dest }}/
+          {% endfor %}
+          {% endfor %}

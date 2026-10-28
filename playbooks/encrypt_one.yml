@@ -1,0 +1,24 @@
+- vars:
+    plain: "{{ root }}/machines/{{ it.0.key }}/{{ it.1 }}"
+    vault: "{{ root }}/machines/{{ it.0.key }}/{{ it.1 }}.vault"
+  block:
+    - ansible.builtin.stat: {path: "{{ plain }}"}
+      register: p
+    - ansible.builtin.stat: {path: "{{ vault }}"}
+      register: v
+    - name: "Skip {{ it.1 }}: no plaintext (vault kept as is)"
+      ansible.builtin.debug: {msg: "{{ plain }} missing"}
+      when: not p.stat.exists and v.stat.exists
+    - name: "Fail {{ it.1 }}: neither plaintext nor vault"
+      ansible.builtin.fail: {msg: "{{ plain }} missing and no vault"}
+      when: not p.stat.exists and not v.stat.exists
+    - name: Checksum of current vault content
+      ansible.builtin.shell: set -o pipefail; ansible-vault decrypt --output - '{{ vault }}' | sha1sum | cut -d' ' -f1
+      args: {executable: /bin/bash, chdir: "{{ root }}"}
+      register: cur
+      changed_when: false
+      when: p.stat.exists and v.stat.exists
+    - name: Encrypt
+      ansible.builtin.command: ansible-vault encrypt --output '{{ vault }}' '{{ plain }}'
+      args: {chdir: "{{ root }}"}
+      when: p.stat.exists and (not v.stat.exists or cur.stdout != p.stat.checksum)

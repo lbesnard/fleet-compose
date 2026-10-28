@@ -1,0 +1,14 @@
+# <file>.vault -> plaintext (in place by default, or under -e dest_root=/some/dir).
+- hosts: localhost
+  gather_facts: false
+  vars_files: [../secrets.yml]
+  vars:
+    machine: all
+    root: "{{ playbook_dir }}/.."
+    dest_root: "{{ root }}/machines"
+  tasks:
+    - name: Decrypt secrets
+      ansible.builtin.include_tasks: decrypt_one.yml
+      loop: "{{ fleet_secrets | dict2items | subelements('value') }}"
+      loop_control: {label: "{{ it.0.key }}/{{ it.1 }}", loop_var: it}
+      when: machine == 'all' or machine == it.0.key

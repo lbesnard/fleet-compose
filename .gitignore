@@ -1,0 +1,24 @@
+# plaintext secrets are listed below by `./fleet encrypt`; only *.vault is committed
+.vault-pass
+*.retry
+# BEGIN MANAGED BY playbooks/encrypt.yml
+/machines/beefunk/docker-compose/.env
+/machines/beefunk/docker-compose/traefik/acme/acme.json
+/machines/beefunk/docker-compose/traefik/certs/beefunk.key
+/machines/beefunk/docker-compose/mpd-dynamic/config/mpd_dynamicrc
+/machines/beefunk/docker-compose/mpd-dynamic/config/mpd_dynamic-blacklist.txt
+/machines/beefunk/docker-compose/monitoring/docker-compose.yml
+/machines/brownfunk/docker-compose/.env
+/machines/brownfunk/docker-compose/traefik/acme/acme.json
+/machines/brownfunk/docker-compose/traefik/certs/brownfunk.key
+/machines/brownfunk/docker-compose/monitoring/docker-compose.yml
+/machines/brownfunk/docker-compose/telegraf.conf
+/machines/evryfunk/docker-compose/.env
+/machines/evryfunk/docker-compose/immich-app/.env
+/machines/evryfunknuc/docker-compose/.env
+/machines/beefunk/docker-compose/homer/local/assets/icons/homer-icons/
+/machines/brownfunk/docker-compose/homer/local/assets/icons/homer-icons/
+/machines/brownfunk/docker-compose/homer-lan/local/assets/icons/homer-icons/
+/machines/brownfunk/docker-compose/explorer/
+/machines/brownfunk/docker-compose/ifm/
+# END MANAGED BY playbooks/encrypt.yml

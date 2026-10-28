@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# fleet <decrypt|encrypt|vendor|sync|rekey|keygen|edit> [machine]
+#   machine: beefunk | brownfunk | evryfunk | evryfunknuc | all
+#   default: $FLEET_MACHINE, else the choice saved by install.sh; encrypt defaults to all
+set -euo pipefail
+cd "$(dirname "$(readlink -f "$0")")"
+export ANSIBLE_CONFIG="$PWD/ansible.cfg"
+KEY="$HOME/.config/fleet-compose/vault-pass"
+CHOICE="$HOME/.config/fleet-compose/machine"
+
+# Machine = explicit arg, else $FLEET_MACHINE, else the choice saved by install.sh. Hostnames are not used.
+cmd=${1:-}; shift || true
+machine=${FLEET_MACHINE:-}
+[ "$cmd" != edit ] && [ $# -gt 0 ] && { machine=$1; shift; }
+[ -z "$machine" ] && [ -f "$CHOICE" ] && machine=$(cat "$CHOICE")
+if [ -z "$machine" ]; then
+  case "$cmd" in encrypt) machine=all ;; decrypt|vendor|sync) echo "which machine? ./fleet $cmd <name>   ($(cd machines && ls -d */ | tr -d / | tr '\n' ' '))" >&2; exit 1 ;; esac
+fi
+if [ -n "$machine" ] && [ "$machine" != all ] && [ ! -d "machines/$machine" ]; then
+  echo "unknown machine: $machine ($(cd machines && ls -d */ | tr -d / | tr '\n' ' '))" >&2; exit 1
+fi
+run() { ansible-playbook "playbooks/$1.yml" -e "machine=$machine" "${@:2}"; }
+
+case "$cmd" in
+  decrypt) run decrypt "$@" ;;
+  encrypt) run encrypt "$@" ;;
+  vendor)  run vendor "$@" ;;
+  sync)    run decrypt "$@"; run vendor "$@" ;;
+  edit)    # fleet edit machines/beefunk/docker-compose/.env.vault   (edit a secret in place)
+    ansible-vault edit "${1:?path to .vault file}" ;;
+  rekey)   # change the vault passphrase: re-encrypts every .vault and replaces the saved key
+    if [ -n "${FLEET_NEW_PASS:-}" ]; then p1=$FLEET_NEW_PASS
+    else read -r -s -p "New passphrase: " p1; echo; read -r -s -p "Again: " p2; echo
+         [ "$p1" = "$p2" ] || { echo "passphrases differ" >&2; exit 1; }; fi
+    [ -n "$p1" ] || { echo "empty passphrase" >&2; exit 1; }
+    new=$(mktemp); trap 'rm -f "$new"' EXIT; chmod 600 "$new"; printf '%s\n' "$p1" > "$new"
+    find machines -name '*.vault' -print0 | xargs -0 ansible-vault rekey --new-vault-password-file "$new"
+    cp -p "$KEY" "$KEY.old"; install -m 600 "$new" "$KEY"
+    echo "done. Old key kept at $KEY.old -- delete it once you've committed and copied the new passphrase to your other machines." ;;
+  keygen)
+    [ -e "$KEY" ] && { echo "$KEY already exists, not overwriting" >&2; exit 1; }
+    install -d -m 700 "$(dirname "$KEY")"; umask 077
+    openssl rand -base64 48 > "$KEY"; echo "wrote $KEY -- back it up in your password manager NOW" ;;
+  *) sed -n '2,4p' "$0" >&2; exit 2 ;;
+esac
