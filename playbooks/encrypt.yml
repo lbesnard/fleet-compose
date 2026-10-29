@@ -11,7 +11,7 @@
     - name: Encrypt changed secrets
       ansible.builtin.include_tasks: encrypt_one.yml
       loop: "{{ fleet_secrets | dict2items | subelements('value') }}"
-      loop_control: {label: "{{ item.0.key }}/{{ item.1 }}", loop_var: it}
+      loop_control: {label: "{{ it.0.key }}/{{ it.1 }}", loop_var: it}
       when: machine == 'all' or machine == it.0.key
 
     - name: Keep .gitignore in sync with the manifest
