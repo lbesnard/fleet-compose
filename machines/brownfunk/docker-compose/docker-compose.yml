@@ -1046,29 +1046,48 @@ services:
       traefik.http.routers.komga.tls: 'true'
       traefik.http.services.komga.loadbalancer.server.port: '25600'
 
-  wireguard:
-    image: linuxserver/wireguard
+  wg-easy:
+    image: ghcr.io/wg-easy/wg-easy:15
+    container_name: wg-easy
     cap_add:
     - NET_ADMIN
     - SYS_MODULE
+    sysctls:
+    - net.ipv4.ip_forward=1
+    - net.ipv4.conf.all.src_valid_mark=1
     environment:
-    - PUID=$PUID_USER
-    - PGID=$PGID_USER
-    - TZ=$TZ
-    - SERVERURL=${DUCKDNS_DOMAIN}-wg.duckdns.org
-    - SERVERPORT=51820
-    - PEERS=$WG2_PEERS
-    - PEERDNS=auto
-    - INTERNAL_SUBNET=10.13.13.0
+      # frontend is IPv4 only
+      DISABLE_IPV6: 'true'
+      # First-start setup only (ignored once the volume is initialised). Everything can be changed later in the UI.
+      INIT_ENABLED: 'true'
+      INIT_USERNAME: $WG_EASY_ADMIN_USER
+      INIT_PASSWORD: $WG_EASY_ADMIN_PASSWORD
+      INIT_HOST: ${DUCKDNS_DOMAIN}-wg.duckdns.org
+      INIT_PORT: '51820'
+      # Same DNS as wireguard2: clients resolve through pihole (and its dnsmasq tailscale entries)
+      INIT_DNS: $PIHOLE_DOCKER_SUB_IP_DNS
+      INIT_IPV4_CIDR: 10.8.0.0/24
+      INIT_IPV6_CIDR: fd42:42:42::/64
+      # Split tunnel: wg subnet, docker frontend (pihole), tailscale, home LAN
+      INIT_ALLOWED_IPS: 10.8.0.0/24,172.20.0.0/24,100.64.0.0/10,192.168.1.0/24
     volumes:
-    - $DOCKER_CONFIG_PATH/wireguard/config:/config
-    - /lib/modules:/lib/modules
-    - /usr/src/:/usr/src
+    - $DOCKER_CONFIG_PATH/wg-easy:/etc/wireguard
+    - /lib/modules:/lib/modules:ro
     ports:
-    - 51820:51820/udp
-    restart: always
+    - 51820:51820/udp # web UI (51821/tcp) is only exposed through traefik
+    # single network on purpose: wg-easy masquerades via eth0, which must be the one facing pihole
+    networks:
+    - frontend
     depends_on:
+    - pihole
     - duckdns
+    restart: unless-stopped
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: frontend
+      traefik.http.routers.wg-easy.entrypoints: websecure
+      traefik.http.routers.wg-easy.tls: 'true'
+      traefik.http.services.wg-easy.loadbalancer.server.port: '51821'
 
   wireguard2:
     image: linuxserver/wireguard
