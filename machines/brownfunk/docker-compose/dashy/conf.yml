@@ -188,6 +188,13 @@ sections:
         url: http://pihole.funkybrownfunk.duckdns.org/admin
         tags: [geek]
 
+      - title: WG-Easy
+        description: Wireguard Easy Server
+        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/wg-easy.png
+        url: https://wg-easy.funkybrownfunk.duckdns.org/
+        tags: [geek]
+
+
       - title: Router
         description: Router config
         icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/asusrouter.png
