@@ -312,6 +312,9 @@ services:
 
       - ${ROMS_PATH}/FinalBurn Neo v1.0.0.03 Arcade Games:/romm/library/fbneo/roms
 
+      - ${ROMS_PATH}/Microsoft - Xbox:/romm/library/xbox/roms
+      - ${ROMS_PATH}/Microsoft - Xbox 360:/romm/library/xbox360/roms
+
       - ${ROMS_PATH}/NEC - PC Engine - TurboGrafx-16:/romm/library/pcengine/roms
       - ${ROMS_PATH}/NEC - PC Engine CD:/romm/library/pcenginecd/roms
       - ${ROMS_PATH}/NEC - PC Engine SuperGrafx:/romm/library/supergrafx/roms
@@ -1035,6 +1038,7 @@ services:
       - 8.8.8.8
     volumes:
       - $SWITCH_PATH:/games
+      - $SWITCH_HOMEBREW_PATH:/homebrew
       - $DOCKER_CONFIG_PATH/aerofoil/config:/app/config
       - $DOCKER_CONFIG_PATH/aerofoil/data:/app/data
     environment:
