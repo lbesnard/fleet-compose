@@ -14,6 +14,9 @@ pageInfo:
     - title: Beefunk Homepage
       path: http://home.funkybeefunk.duckdns.org
       target: newtab
+    - title: Evryfunk Homepage
+      path: http://home.funkyevryfunk.duckdns.org
+      target: newtab
   footer: |
     Created with ❤️ | <a href="http://hedgedoc.funkybrownfunk.duckdns.org/s/H1tA_LShH" target="_blank">Server Howto</a>
 

@@ -1,0 +1,271 @@
+tls:
+  certificates:
+    - certFile: /certs/evryfunk.crt
+      keyFile: /certs/evryfunk.key
+
+  # Forces Traefik to always default to this cert for all local hosts
+  stores:
+    default:
+      defaultCertificate:
+        certFile: /certs/evryfunk.crt
+        keyFile: /certs/evryfunk.key
+
+# One router per service that is not a labelled container, serving both the
+# .lan/.home/.local names and the <name>.funkyevryfunk.duckdns.org name on HTTPS.
+# Routers only set `tls: {}`: traefik picks the matching cert from its store - the
+# Let's Encrypt wildcard for *.funkyevryfunk.duckdns.org, or the self-signed default
+# above for the .local names. Do not add a certResolver here; the wildcard is
+# requested once by the traefik-dashboard router in docker-compose.yml.
+#
+# Services on this machine are reached through their published ports via
+# host.docker.internal (extra_hosts on the traefik container), so their direct
+# http://evryfunk.lan:<port> access keeps working. Services of brownfunk replace the
+# former portforward_* containers.
+http:
+  routers:
+    # Plain http: redirect everything to https. Priority 1 so that the explicit
+    # `web` routers (homer on the bare evryfunk.lan host) win.
+    http-to-https:
+      rule: "HostRegexp(`.+`)"
+      entryPoints:
+        - "web"
+      priority: 1
+      middlewares:
+        - "redirect-to-https"
+      service: noop@internal
+
+    # --- local services (evryfunk) ---
+    jellyfin:
+      rule: "Host(`jellyfin.evryfunk.lan`) || Host(`jellyfin.evryfunk.home`) || Host(`jellyfin.evryfunk.local`) || Host(`jellyfin.funkyevryfunk.duckdns.org`)"
+      entryPoints: ["websecure"]
+      tls: {}
+      service: jellyfin
+
+    nextcloud:
+      rule: "Host(`nextcloud.evryfunk.lan`) || Host(`nextcloud.evryfunk.home`) || Host(`nextcloud.evryfunk.local`) || Host(`nextcloud.funkyevryfunk.duckdns.org`)"
+      entryPoints: ["websecure"]
+      tls: {}
+      service: nextcloud
+
+    immich:
+      rule: "Host(`immich.evryfunk.lan`) || Host(`immich.evryfunk.home`) || Host(`immich.evryfunk.local`) || Host(`immich.funkyevryfunk.duckdns.org`)"
+      entryPoints: ["websecure"]
+      tls: {}
+      service: immich
+
+    immich-kiosk:
+      rule: "Host(`immich-kiosk.evryfunk.lan`) || Host(`immich-kiosk.evryfunk.home`) || Host(`immich-kiosk.evryfunk.local`) || Host(`immich-kiosk.funkyevryfunk.duckdns.org`)"
+      entryPoints: ["websecure"]
+      tls: {}
+      service: immich-kiosk
+
+    mealie:
+      rule: "Host(`mealie.evryfunk.lan`) || Host(`mealie.evryfunk.home`) || Host(`mealie.evryfunk.local`) || Host(`mealie.funkyevryfunk.duckdns.org`)"
+      entryPoints: ["websecure"]
+      tls: {}
+      service: mealie
+
+    lingodiary:
+      rule: "Host(`lingodiary.evryfunk.lan`) || Host(`lingodiary.evryfunk.home`) || Host(`lingodiary.evryfunk.local`) || Host(`lingodiary.funkyevryfunk.duckdns.org`)"
+      entryPoints: ["websecure"]
+      tls: {}
+      service: lingodiary
+
+    tandoor:
+      rule: "Host(`tandoor.evryfunk.lan`) || Host(`tandoor.evryfunk.home`) || Host(`tandoor.evryfunk.local`) || Host(`tandoor.funkyevryfunk.duckdns.org`)"
+      entryPoints: ["websecure"]
+      tls: {}
+      service: tandoor
+
+    filebrowser:
+      rule: "Host(`filebrowser.evryfunk.lan`) || Host(`filebrowser.evryfunk.home`) || Host(`filebrowser.evryfunk.local`) || Host(`filebrowser.funkyevryfunk.duckdns.org`)"
+      entryPoints: ["websecure"]
+      tls: {}
+      service: filebrowser
+
+    scrutiny:
+      rule: "Host(`scrutiny.evryfunk.lan`) || Host(`scrutiny.evryfunk.home`) || Host(`scrutiny.evryfunk.local`) || Host(`scrutiny.funkyevryfunk.duckdns.org`)"
+      entryPoints: ["websecure"]
+      tls: {}
+      service: scrutiny
+
+    firefox:
+      rule: "Host(`firefox.evryfunk.lan`) || Host(`firefox.evryfunk.home`) || Host(`firefox.evryfunk.local`) || Host(`firefox.funkyevryfunk.duckdns.org`)"
+      entryPoints: ["websecure"]
+      tls: {}
+      service: firefox
+
+    prowlarr:
+      rule: "Host(`prowlarr.evryfunk.lan`) || Host(`prowlarr.evryfunk.home`) || Host(`prowlarr.evryfunk.local`) || Host(`prowlarr.funkyevryfunk.duckdns.org`)"
+      entryPoints: ["websecure"]
+      tls: {}
+      service: prowlarr
+
+    jackett:
+      rule: "Host(`jackett.evryfunk.lan`) || Host(`jackett.evryfunk.home`) || Host(`jackett.evryfunk.local`) || Host(`jackett.funkyevryfunk.duckdns.org`)"
+      entryPoints: ["websecure"]
+      tls: {}
+      service: jackett
+
+    transmission:
+      rule: "Host(`transmission.evryfunk.lan`) || Host(`transmission.evryfunk.home`) || Host(`transmission.evryfunk.local`) || Host(`transmission.funkyevryfunk.duckdns.org`)"
+      entryPoints: ["websecure"]
+      tls: {}
+      service: transmission
+
+    pihole:
+      rule: "Host(`pihole.evryfunk.lan`) || Host(`pihole.evryfunk.home`) || Host(`pihole.evryfunk.local`) || Host(`pihole.funkyevryfunk.duckdns.org`)"
+      entryPoints: ["websecure"]
+      tls: {}
+      service: pihole
+
+    keeweb:
+      rule: "Host(`keeweb.evryfunk.lan`) || Host(`keeweb.evryfunk.home`) || Host(`keeweb.evryfunk.local`) || Host(`keeweb.funkyevryfunk.duckdns.org`)"
+      entryPoints: ["websecure"]
+      tls: {}
+      service: keeweb
+
+    aerofoil:
+      rule: "Host(`aerofoil.evryfunk.lan`) || Host(`aerofoil.evryfunk.home`) || Host(`aerofoil.evryfunk.local`) || Host(`aerofoil.funkyevryfunk.duckdns.org`)"
+      entryPoints: ["websecure"]
+      tls: {}
+      service: aerofoil
+
+    # --- remote services (brownfunk), replace the former portforward_* containers ---
+    radarr-fr:
+      rule: "Host(`radarr-fr.evryfunk.lan`) || Host(`radarr-fr.evryfunk.home`) || Host(`radarr-fr.evryfunk.local`) || Host(`radarr-fr.funkyevryfunk.duckdns.org`)"
+      entryPoints: ["websecure"]
+      tls: {}
+      service: radarr-fr-remote
+
+    radarr-fr-port:
+      rule: "PathPrefix(`/`)"
+      entryPoints: ["radarr-fr"]
+      service: radarr-fr-remote
+
+    calibre-web:
+      rule: "Host(`calibre-web.evryfunk.lan`) || Host(`calibre-web.evryfunk.home`) || Host(`calibre-web.evryfunk.local`) || Host(`calibre-web.funkyevryfunk.duckdns.org`)"
+      entryPoints: ["websecure"]
+      tls: {}
+      service: calibre-web-remote
+
+    calibre-web-port:
+      rule: "PathPrefix(`/`)"
+      entryPoints: ["calibre-web"]
+      service: calibre-web-remote
+
+    calibre:
+      rule: "Host(`calibre.evryfunk.lan`) || Host(`calibre.evryfunk.home`) || Host(`calibre.evryfunk.local`) || Host(`calibre.funkyevryfunk.duckdns.org`)"
+      entryPoints: ["websecure"]
+      tls: {}
+      service: calibre-remote
+
+    calibre-port:
+      rule: "PathPrefix(`/`)"
+      entryPoints: ["calibre"]
+      service: calibre-remote
+
+    navidrome:
+      rule: "Host(`navidrome.evryfunk.lan`) || Host(`navidrome.evryfunk.home`) || Host(`navidrome.evryfunk.local`) || Host(`navidrome.funkyevryfunk.duckdns.org`)"
+      entryPoints: ["websecure"]
+      tls: {}
+      service: navidrome-remote
+
+    navidrome-port:
+      rule: "PathPrefix(`/`)"
+      entryPoints: ["navidrome"]
+      service: navidrome-remote
+
+  middlewares:
+    redirect-to-https:
+      redirectScheme:
+        scheme: https
+        permanent: true
+
+  services:
+    jellyfin:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:8096"
+    nextcloud:
+      loadBalancer:
+        serversTransport: insecure-tls
+        servers:
+          - url: "https://host.docker.internal:9393"
+    immich:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:2283"
+    immich-kiosk:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:3000"
+    mealie:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:9925"
+    lingodiary:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:8084"
+    tandoor:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:1141"
+    filebrowser:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:9295"
+    scrutiny:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:8033"
+    firefox:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:3008"
+    prowlarr:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:9696"
+    jackett:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:9117"
+    transmission:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:9091"
+    pihole:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:455"
+    keeweb:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:8877"
+    aerofoil:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:8465"
+
+    radarr-fr-remote:
+      loadBalancer:
+        servers:
+          - url: "http://brownfunk.lan:7879"
+    calibre-web-remote:
+      loadBalancer:
+        servers:
+          - url: "http://brownfunk.lan:8083"
+    calibre-remote:
+      loadBalancer:
+        servers:
+          - url: "http://brownfunk.lan:8081"
+    navidrome-remote:
+      loadBalancer:
+        servers:
+          - url: "http://brownfunk.lan:8082"
+
+  serversTransports:
+    insecure-tls:
+      insecureSkipVerify: true

@@ -1,10 +1,91 @@
 version: "3.3"
 networks:
+  proxy:
+    name: proxy
+    driver: bridge
   frontend:
     ipam:
       config:
         - subnet: $DOCKER_SUBNET_1
 services:
+  traefik:
+    image: traefik:v3.6
+    container_name: traefik
+    command:
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=proxy
+      - '--providers.docker.defaultRule=Host(`{{ index .Labels "com.docker.compose.service" }}.${SERVER_DOMAIN}.lan`) || Host(`{{ index .Labels "com.docker.compose.service" }}.${SERVER_DOMAIN}.home`) || Host(`{{ index .Labels "com.docker.compose.service" }}.${SERVER_DOMAIN}.local`) || Host(`{{ index .Labels "com.docker.compose.service" }}.${TRAEFIK_DUCKDNS_DOMAIN}.duckdns.org`)'
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      # Plain-http entrypoints replacing the former portforward_* containers, so
+      # http://evryfunk.lan:<port> works without LAN DNS. Routed in dynamic_tls.yml.
+      - --entrypoints.radarr-fr.address=:7879
+      - --entrypoints.calibre.address=:8081
+      - --entrypoints.navidrome.address=:8082
+      - --entrypoints.calibre-web.address=:8083
+      # No global HTTP->HTTPS redirect here (unlike brownfunk/beefunk): plain http://evryfunk.lan
+      # must keep serving homer. The redirect lives in dynamic_tls.yml as a low priority
+      # catch-all router, so every other host is still redirected to https.
+      - --providers.file.filename=/etc/traefik/dynamic_tls.yml
+      - --api.dashboard=true
+      # Let's Encrypt wildcard cert for *.${TRAEFIK_DUCKDNS_DOMAIN}.duckdns.org via DNS-01.
+      # DNS-01 is outbound only: traefik sets a TXT record through the DuckDNS API
+      # and Let's Encrypt reads it from public DNS. No inbound ports are needed, so this
+      # works although funkyevryfunk.duckdns.org points to the tailscale IP.
+      - --certificatesresolvers.duckdns.acme.dnschallenge=true
+      - --certificatesresolvers.duckdns.acme.dnschallenge.provider=duckdns
+      # This container cannot reach DuckDNS's authoritative nameservers on UDP/53,
+      # so lego's own propagation check times out. Skip it and simply wait instead -
+      # Let's Encrypt still validates the TXT record itself from the internet.
+      - --certificatesresolvers.duckdns.acme.dnschallenge.disablepropagationcheck=true
+      - --certificatesresolvers.duckdns.acme.dnschallenge.delaybeforecheck=120
+      - --certificatesresolvers.duckdns.acme.email=$ACME_EMAIL
+      - --certificatesresolvers.duckdns.acme.storage=/acme/acme.json
+    ports:
+      - "80:80"
+      - "443:443"
+      - "7879:7879"
+      - "8081:8081"
+      - "8082:8082"
+      - "8083:8083"
+    # pihole_v6 only listens on 5353 on the LAN IP; reach it on the docker network instead
+    dns:
+      - $PIHOLE_DOCKER_SUB_IP_DNS
+      - 1.1.1.1
+    # lets dynamic_tls.yml routers reach the published ports of the other containers
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - DUCKDNS_TOKEN=$DUCKDNS_TOKEN
+    volumes:
+      # Self-signed fallback for the *.${SERVER_DOMAIN}.local / .lan / .home names.
+      # CREATE CERTS WITH FOLLOWING COMMAND
+      # openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
+      #   -keyout ${SERVER_DOMAIN}.key -out ${SERVER_DOMAIN}.crt \
+      #   -subj "/CN=${SERVER_DOMAIN}.local" \
+      #   -addext "subjectAltName=DNS:${SERVER_DOMAIN}.local,DNS:*.${SERVER_DOMAIN}.local,DNS:${SERVER_DOMAIN}.home,DNS:*.${SERVER_DOMAIN}.home,DNS:${SERVER_DOMAIN}.lan,DNS:*.${SERVER_DOMAIN}.lan"
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/certs:/certs:ro
+      - ./traefik/acme:/acme # acme.json, must stay writable
+      - ./traefik/dynamic_tls.yml:/etc/traefik/dynamic_tls.yml:ro
+    networks:
+      - proxy
+      - frontend
+    depends_on:
+      - pihole_v6
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      # This single router requests the wildcard cert. Every other router just
+      # sets tls=true and traefik serves the matching cert from its store.
+      - "traefik.http.routers.traefik-dashboard.rule=Host(`traefik.${TRAEFIK_DUCKDNS_DOMAIN}.duckdns.org`)"
+      - "traefik.http.routers.traefik-dashboard.entrypoints=websecure"
+      - "traefik.http.routers.traefik-dashboard.service=api@internal"
+      - "traefik.http.routers.traefik-dashboard.tls.certresolver=duckdns"
+      - "traefik.http.routers.traefik-dashboard.tls.domains[0].main=${TRAEFIK_DUCKDNS_DOMAIN}.duckdns.org"
+      - "traefik.http.routers.traefik-dashboard.tls.domains[0].sans=*.${TRAEFIK_DUCKDNS_DOMAIN}.duckdns.org"
+
   # pihole:
   #   container_name: pihole
   #   image: pihole/pihole:2024.07.0
@@ -39,15 +120,22 @@ services:
       # for tailscale dns resolution
       - "100.65.194.124:53:53/udp"
       - "100.65.194.124:53:53/tcp"
+      # for LAN clients (router / deco DHCP DNS)
+      - "${SERVER_LAN_IP}:53:53/udp"
+      - "${SERVER_LAN_IP}:53:53/tcp"
       # - "67:67/udp"
       - "455:80/tcp"
     environment:
       TZ: $TZ
       FTLCONF_dns_listeningMode: "all"
       FTLCONF_webserver_api_password: $PIHOLE_PWD
+      # read the config files in /etc/dnsmasq.d (off by default in pihole v6)
+      FTLCONF_misc_etc_dnsmasq_d: "true"
     volumes:
       - $DOCKER_CONFIG_PATH/pihole_v6/etc/pihole/:/etc/pihole/
-      - $DOCKER_CONFIG_PATH/pihole_v6/etc-dnsmasq.d/:/etc/dnsmasq.d/
+      # tracked in the repo (no secrets): local DNS overrides for the *.duckdns.org names.
+      # The whole directory is mounted, so nothing else can end up in /etc/dnsmasq.d.
+      - ./pihole/etc-dnsmasq.d/:/etc/dnsmasq.d/
     # Recommended but not required (DHCP needs NET_ADMIN)
     #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
     cap_add:
@@ -366,16 +454,46 @@ services:
       - $DOCKER_CONFIG_PATH/homer/config.yml:/www/config.yml
       - $DOCKER_CONFIG_PATH/homer/local/assets/:/www/assets
     ports:
-      - 80:8080
+      - 8080:8080 # was 80:8080, port 80 now belongs to traefik
+    networks:
+      - proxy
     restart: always
     labels:
       com.centurylinklabs.watchtower.enable: true
-      #traefik.enable: true
-      #traefik.http.routers.home.rule: Host(`home.brownfunk.lan`)
-      #traefik.http.routers.home.entrypoints: web
-      #traefik.http.services.home.loadbalancer.server.port: 80
+      # Keeps http://evryfunk.lan (and http://<lan ip>) working: bare host only, plain http,
+      # no redirect. <service>.evryfunk.lan etc. still go to https through the catch-all.
+      traefik.enable: true
+      traefik.http.routers.homer.rule: Host(`${SERVER_DOMAIN}.lan`) || Host(`${SERVER_DOMAIN}.home`) || Host(`${SERVER_DOMAIN}.local`) || Host(`${SERVER_LAN_IP}`)
+      traefik.http.routers.homer.entrypoints: web
+      traefik.http.services.homer.loadbalancer.server.port: 8080
     depends_on:
       - pihole_v6
+      - traefik
+
+  dashy:
+    image: lissy93/dashy:latest
+    container_name: dashy
+    environment:
+      - PUID=$PUID_USER
+      - PGID=$PGID_USER
+      - TZ=${TZ}
+    volumes:
+      - ./dashy:/app/user-data
+    restart: unless-stopped
+    networks:
+      - proxy
+    dns:
+      - $PIHOLE_DOCKER_SUB_IP_DNS
+      - 8.8.8.8
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashy.rule=Host(`home.${SERVER_DOMAIN}.lan`) || Host(`home.${SERVER_DOMAIN}.home`) || Host(`home.${SERVER_DOMAIN}.local`) || Host(`home.${TRAEFIK_DUCKDNS_DOMAIN}.duckdns.org`) || Host(`dashy.${TRAEFIK_DUCKDNS_DOMAIN}.duckdns.org`)"
+      - "traefik.http.routers.dashy.entrypoints=websecure"
+      - "traefik.http.routers.dashy.tls=true"
+      - "traefik.http.services.dashy.loadbalancer.server.port=8080"
+    depends_on:
+      - pihole_v6
+      - traefik
   #
   #### wireguard
   wireguard:
@@ -409,6 +527,50 @@ services:
       - pihole_v6
     restart: always
 
+  wg-easy:
+    image: ghcr.io/wg-easy/wg-easy:15
+    container_name: wg-easy
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv4.conf.all.src_valid_mark=1
+    environment:
+      # frontend is IPv4 only
+      DISABLE_IPV6: 'true'
+      # First-start setup only (ignored once the volume is initialised). Everything can be changed later in the UI.
+      INIT_ENABLED: 'true'
+      INIT_USERNAME: $WG_EASY_ADMIN_USER
+      INIT_PASSWORD: $WG_EASY_ADMIN_PASSWORD
+      INIT_HOST: ${DUCKDNS_DOMAIN}.duckdns.org
+      # 51820/udp is already taken by the `wireguard` service above
+      INIT_PORT: '51821'
+      # clients resolve through pihole
+      INIT_DNS: $PIHOLE_DOCKER_SUB_IP_DNS
+      INIT_IPV4_CIDR: 10.8.0.0/24
+      INIT_IPV6_CIDR: fd42:42:42::/64
+      # Split tunnel: wg subnet, docker frontend (pihole), tailscale, home LAN
+      INIT_ALLOWED_IPS: 10.8.0.0/24,${DOCKER_SUBNET_1},100.64.0.0/10,192.168.1.0/24
+    volumes:
+      - $DOCKER_CONFIG_PATH/wg-easy:/etc/wireguard
+      - /lib/modules:/lib/modules:ro
+    ports:
+      - 51821:51821/udp # web UI (51821/tcp) is only exposed through traefik
+    # single network on purpose: wg-easy masquerades via eth0, which must be the one facing pihole
+    networks:
+      - frontend
+    depends_on:
+      - pihole_v6
+      - duckdns
+    restart: unless-stopped
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: frontend
+      traefik.http.routers.wg-easy.entrypoints: websecure
+      traefik.http.routers.wg-easy.tls: 'true'
+      traefik.http.services.wg-easy.loadbalancer.server.port: '51821'
+
   # photoprism:
   #   ## Use photoprism/photoprism:preview for testing preview builds:
   #   container_name: photoprism
@@ -433,7 +595,7 @@ services:
   #   environment:
   #     PHOTOPRISM_ADMIN_PASSWORD: $PHOTOPRISM_ADMIN_PASSWORD # INITIAL PASSWORD FOR "admin" USER, MINIMUM 8 CHARACTERS
   #     PHOTOPRISM_AUTH_MODE: "password" # authentication mode (public, password)
-  #     PHOTOPRISM_SITE_URL: "http://$SERVER_URL:2342/" # public server URL incl http:// or https:// and /path, :port is optional
+  #     PHOTOPRISM_SITE_URL: "$SERVER_URL:2342/" # public server URL incl http:// or https:// and /path, :port is optional
   #     PHOTOPRISM_ORIGINALS_LIMIT: 5000 # file size limit for originals in MB (increase for high-res video)
   #     PHOTOPRISM_HTTP_COMPRESSION: "gzip" # improves transfer speed and bandwidth utilization (none or gzip)
   #     PHOTOPRISM_LOG_LEVEL: "info" # log level: trace, debug, info, warning, error, fatal, or panic
@@ -452,7 +614,7 @@ services:
   #     PHOTOPRISM_UPLOAD_NSFW: "true" # allows uploads that MAY be offensive (no effect without TensorFlow)
   #     # PHOTOPRISM_DATABASE_DRIVER: "sqlite"         # SQLite is an embedded database that doesn't require a server
   #     PHOTOPRISM_DATABASE_DRIVER: "mysql" # use MariaDB 10.5+ or MySQL 8+ instead of SQLite for improved performance
-  #     PHOTOPRISM_DATABASE_SERVER: $SERVER_URL:3307 # MariaDB or MySQL database server (hostname:port)
+  #     PHOTOPRISM_DATABASE_SERVER: $SERVER_LAN_IP:3307 # MariaDB or MySQL database server (hostname:port)
   #     PHOTOPRISM_DATABASE_NAME: "photoprism" # MariaDB or MySQL database schema name
   #     PHOTOPRISM_DATABASE_USER: "photoprism" # MariaDB or MySQL database user name
   #     PHOTOPRISM_DATABASE_PASSWORD: $PHOTOPRISM_MARIADB_PASSWORD # MariaDB or MySQL database user password
@@ -549,69 +711,6 @@ services:
       TZ: $TZ
       OPENAI_API_KEY: $OPENAI_API_KEY
       BASE_URL: https://mealie.evryfunk.home
-
-  portforward_radarr:
-    image: marcnuri/port-forward
-    container_name: portforward
-    environment:
-      - REMOTE_HOST=brownfunk.lan
-      - REMOTE_PORT=7879
-      - LOCAL_PORT=80
-    ports:
-      - 7879:80
-    dns:
-      - $PIHOLE_DOCKER_SUB_IP_DNS
-    networks:
-      - frontend
-    healthcheck:
-      test: ["CMD-SHELL", "nc -z 127.0.0.1 80 || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 5s
-    restart: unless-stopped
-
-  portforward_calibreweb:
-    image: marcnuri/port-forward
-    container_name: portforward_calibreweb
-    environment:
-      - REMOTE_HOST=brownfunk.lan
-      - REMOTE_PORT=8083
-      - LOCAL_PORT=80
-    ports:
-      - 8083:80
-    dns:
-      - $PIHOLE_DOCKER_SUB_IP_DNS
-    networks:
-      - frontend
-
-  portforward_calibre:
-    image: marcnuri/port-forward
-    container_name: portforward_calibre
-    environment:
-      - REMOTE_HOST=brownfunk.lan
-      - REMOTE_PORT=8081
-      - LOCAL_PORT=80
-    ports:
-      - 8081:80
-    dns:
-      - $PIHOLE_DOCKER_SUB_IP_DNS
-    networks:
-      - frontend
-
-  portforward_navidrome:
-    image: marcnuri/port-forward
-    container_name: portforward_navidrome
-    environment:
-      - REMOTE_HOST=brownfunk.lan
-      - REMOTE_PORT=8082
-      - LOCAL_PORT=80
-    ports:
-      - 8082:80
-    dns:
-      - $PIHOLE_DOCKER_SUB_IP_DNS
-    networks:
-      - frontend
 
   filebrowserquantum:
     image: gtstef/filebrowser:latest
@@ -710,4 +809,4 @@ volumes:
     driver_opts:
       type: cifs
       o: "username=$SAMBA_PICTURES_USER,password=$SAMBA_PICTURES_PASSWORD,rw"
-      device: "//$SERVER_URL/pictures"
+      device: "//$SERVER_LAN_IP/pictures"
