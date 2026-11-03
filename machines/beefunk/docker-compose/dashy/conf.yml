@@ -301,6 +301,12 @@ sections:
         url: http://traefik.funkybrownfunk.duckdns.org
         tags: [geek]
 
+      - title: WG-Easy
+        description: Wireguard Easy Server
+        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/wg-easy.png
+        url: https://wg-easy.funkybeefunk.duckdns.org/
+        tags: [geek]
+
       - title: Cockpit
         description: Linux console VM
         icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/cockpit.png
