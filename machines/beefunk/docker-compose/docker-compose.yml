@@ -1027,24 +1027,18 @@ services:
 
   # Samba
   samba:
-    image: dperson/samba
+    image: crazymax/samba:latest
     container_name: samba
     depends_on:
       media-mount-check:
         condition: service_healthy
     environment:
       TZ: $TZ
-      PUID: $PUID_USER
-      PGID: $PGID_USER
+      CONFIG_FILE: /config.yml
+      # default is the private ranges only; 100.64.0.0/10 = tailscale
+      SAMBA_HOSTS_ALLOW: "127.0.0.0/8 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 100.64.0.0/10"
     ports:
-      - "139:139/tcp"
       - "445:445/tcp"
-    read_only: true
-    tmpfs:
-      - /tmp
-    restart: always
-    stdin_open: true
-    tty: true
     volumes:
       - $MOVIES_PATH:/share1:ro
       - $TV_SHOWS_PATH:/share2:ro
@@ -1053,18 +1047,12 @@ services:
       - $PICTURES_PATH:/share5
       - $MUSIC_PATH:/share6
       - $SWITCH_PATH:/share7
-    command: |
-      -s "Movies;/share1;yes;yes;yes;all;none;$USER;movies share ro"
-      -s "Shows;/share2;yes;yes;yes;all;none;$USER;shows share ro"
-      -s "Self Improvement;/share3;yes;no;no;$USER;$USER;$USER;Self Improvement share ro"
-      -s "Pictures_export;/share4;yes;no;no;$USER;$USER;$USER;pictures_export ro except user"
-      -s "Pictures;/share5;yes;no;no;$USER;$USER;$USER;pictures ro except user"
-      -s "Music;/share6;yes;yes;yes;all;none;$USER;music share ro"
-      -s "Switch;/share7;yes;yes;yes;all;none;$USER;switch share ro"
-      -u "$USER;$SAMBA_PASSWORD"
-      -u "guest;guest"
-      -g "map to guest = Bad User"
-      -g "guest account = nobody"
+    configs:
+      - source: samba_config
+        target: /config.yml
+    secrets:
+      - samba_password
+    restart: always
 
   # bentopdf:
   #   image: bentopdf/bentopdf:latest
@@ -1617,6 +1605,13 @@ services:
   #     - "traefik.http.services.netdata.loadbalancer.server.port=19999"
   #     - "com.centurylinklabs.watchtower.enable=true"
 
+configs:
+  samba_config:
+    file: ./samba/config.yml
+
+secrets:
+  samba_password:
+    environment: SAMBA_PASSWORD
 volumes:
   # netdatalib:
   # netdatacache:

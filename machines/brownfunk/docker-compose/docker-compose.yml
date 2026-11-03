@@ -1221,21 +1221,15 @@ services:
     restart: always
 
   samba:
-    image: dperson/samba
+    image: crazymax/samba:latest
     container_name: samba
     environment:
       TZ: $TZ
-      PUID: $PUID_USER
-      PGID: $PGID_USER
+      CONFIG_FILE: /config.yml
+      # default is the private ranges only; 100.64.0.0/10 = tailscale
+      SAMBA_HOSTS_ALLOW: "127.0.0.0/8 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 100.64.0.0/10"
     ports:
-    - 139:139/tcp
-    - 445:445/tcp
-    read_only: true
-    tmpfs:
-    - /tmp
-    restart: always
-    stdin_open: true
-    tty: true
+      - "445:445/tcp"
     volumes:
     - $EBOOKS_AUDIOBOOKS_PATH:/share1:ro
     - $GAMES_PATH:/share2:ro
@@ -1247,36 +1241,12 @@ services:
     - $SELF_IMPROVEMENT_PATH:/share8:ro
     - $PODCASTS_PATH:/share9:ro
     - $TV_SHOWS_PATH:/share10:ro
-    command: '-s "Ebooks;/share1;yes;yes;yes;all;none;$USER;ebooks share ro"
-
-      -s "Games;/share2;yes;yes;yes;all;none;$USER;games share ro"
-
-      -s "Movies;/share3;yes;yes;yes;all;none;$USER;movies share ro"
-
-      -s "Shows;/share10;yes;yes;yes;all;none;$USER;shows share ro"
-
-      -s "Music;/share4;yes;yes;yes;all;none;$USER;music share ro"
-
-      -s "Pictures;/share5;yes;no;no;$USER;$USER;$USER;pictures ro except user"
-
-      -s "Shared;/share6;yes;no;yes;guest,$USER;guest,$USER;guest,$USER;shared rw"
-
-      -s "Torrent;/share7;yes;yes;yes;all;none;$USER;torrent share ro"
-
-      -s "Self Improvement;/share8;yes;yes;yes;all;none;$USER;Self Improvement share
-      ro"
-
-      -s "Podcasts;/share9;yes;yes;yes;all;none;$USER;Podcasts share ro"
-
-      -u "$USER;$SAMBA_PASSWORD"
-
-      -u "guest;guest"
-
-      -g "map to guest = Bad User"
-
-      -g "guest account = nobody"
-
-      '
+    configs:
+      - source: samba_config
+        target: /config.yml
+    secrets:
+      - samba_password
+    restart: always
   filebrowserquantum:
     image: gtstef/filebrowser:latest
     container_name: filebrowserquantum
@@ -1609,3 +1579,11 @@ services:
   #   labels:
   #     com.centurylinklabs.watchtower.enable: true
   #
+
+configs:
+  samba_config:
+    file: ./samba/config.yml
+
+secrets:
+  samba_password:
+    environment: SAMBA_PASSWORD

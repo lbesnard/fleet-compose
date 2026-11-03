@@ -320,31 +320,25 @@ services:
     restart: unless-stopped
   ####################
   samba:
-    image: dperson/samba
+    image: crazymax/samba:latest
     container_name: samba
     environment:
       TZ: $TZ
+      CONFIG_FILE: /config.yml
+      # default is the private ranges only; 100.64.0.0/10 = tailscale
+      SAMBA_HOSTS_ALLOW: "127.0.0.0/8 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 100.64.0.0/10"
     ports:
-      - "139:139/tcp"
       - "445:445/tcp"
-    read_only: true
-    tmpfs:
-      - /tmp
-    restart: always
-    stdin_open: true
-    tty: true
     volumes:
       - $SHARE_PATH:/share6
       - $PICTURES_PATH:/share5
       - $MOVIES_PATH:/share4
-    command: |
-      -s "Shared;/share6;yes;no;yes;guest,$USER;guest,$USER;guest,$USER;shared rw"
-      -s "Films;/share4;yes;no;yes;guest,$USER;guest,$USER;guest,$USER;films rw"
-      -s "Pictures;/share5;yes;no;yes;$SAMBA_PICTURES_USER,$USER;$SAMBA_PICTURES_USER,$USER;$SAMBA_PICTURES_USER,$USER;pictures rw"
-      -u "guest;guest"
-      -u "$SAMBA_PICTURES_USER;$SAMBA_PICTURES_PASSWORD"
-      -g "map to guest = Bad User"
-      -g "guest account = nobody"
+    configs:
+      - source: samba_config
+        target: /config.yml
+    secrets:
+      - samba_password
+    restart: always
 
   duckdns:
     image: linuxserver/duckdns
@@ -840,6 +834,13 @@ services:
     shm_size: "1gb"
     restart: unless-stopped
 
+configs:
+  samba_config:
+    file: ./samba/config.yml
+
+secrets:
+  samba_password:
+    environment: SAMBA_PICTURES_PASSWORD
 volumes:
   netdatalib:
   netdatacache:
