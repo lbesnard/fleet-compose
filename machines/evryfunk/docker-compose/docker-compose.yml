@@ -131,6 +131,14 @@ services:
       FTLCONF_webserver_api_password: $PIHOLE_PWD
       # read the config files in /etc/dnsmasq.d (off by default in pihole v6)
       FTLCONF_misc_etc_dnsmasq_d: "true"
+      # Non-default settings kept as env vars instead of mounting pihole.toml (pihole rewrites it
+      # and it holds the password hash). Arrays use ";" as separator.
+      FTLCONF_dns_upstreams: "8.8.8.8;8.8.4.4"
+      FTLCONF_dns_interface: "eth0"
+      FTLCONF_dns_reply_host_force4: "true"
+      FTLCONF_webserver_port: "80o,443os"
+      # Custom DNS records (IP HOSTNAME): the .lan names also resolve through tailscale
+      FTLCONF_dns_hosts: "100.107.210.10 beefunk.lan;100.107.210.10 beefunk.home;100.65.194.124 evryfunk.home;100.65.194.124 evryfunk.lan;100.107.210.10 beefunk;192.168.1.180 brownfunk;100.65.194.124 evryfunk;100.92.18.39 brownfunk.lan"
     volumes:
       - $DOCKER_CONFIG_PATH/pihole_v6/etc/pihole/:/etc/pihole/
       # tracked in the repo (no secrets): local DNS overrides for the *.duckdns.org names.

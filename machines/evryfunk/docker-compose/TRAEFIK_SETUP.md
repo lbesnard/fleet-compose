@@ -114,6 +114,10 @@ Labelled containers: `dashy`, `glances`, `wg-easy` (web UI only through traefik)
   (`FTLCONF_misc_etc_dnsmasq_d=true`). It makes `*.funkyevryfunk.duckdns.org` resolve to the **LAN IP**
   (lower latency) for pihole users, and the beefunk/brownfunk names to their tailscale IPs.
   The LAN IP is hardcoded there: update it if `SERVER_LAN_IP` changes.
+- `pihole.toml` is **not** tracked or mounted: pihole rewrites it and it contains the web password
+  hash. The non-default settings (upstreams, `dns.hosts`, interface, web port) are `FTLCONF_*`
+  environment variables of the `pihole_v6` service instead. They show as read-only in the web UI,
+  change them in `docker-compose.yml`.
 - If pihole is the only DNS server of a client and evryfunk is down, that client has no DNS.
   Prefer a secondary DNS that is not a public resolver (it would answer with the unreachable
   tailscale IP for `funkyevryfunk`).
