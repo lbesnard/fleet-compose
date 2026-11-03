@@ -846,6 +846,49 @@ services:
       - "traefik.http.routers.calibre-web.tls=true"
       - "traefik.http.services.calibre-web.loadbalancer.server.port=8083"
       - "com.centurylinklabs.watchtower.enable=true"
+
+  cwa:
+    image: crocodilestick/calibre-web-automated:latest
+    container_name: cwa
+    environment:
+      - PUID=$PUID_USER
+      - PGID=$PGID_USER
+      - TZ=$TZ
+      - NETWORK_SHARE_MODE=false
+    volumes:
+      - $DOCKER_CONFIG_PATH/cwa/config:/config
+      - $DOCKER_CONFIG_PATH/cwa/ingest:/cwa-book-ingest
+      - $DOCKER_CONFIG_PATH/cwa/library:/calibre-library
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cwa.entrypoints=websecure"
+      - "traefik.http.routers.cwa.tls=true"
+      - "traefik.http.services.cwa.loadbalancer.server.port=8083"
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  shelfmark:
+    image: ghcr.io/calibrain/shelfmark:latest
+    container_name: shelfmark
+    environment:
+      - PUID=$PUID_USER
+      - PGID=$PGID_USER
+      - TZ=$TZ
+    volumes:
+      # downloads land in CWA's ingest folder, CWA imports them and deletes the files
+      - $DOCKER_CONFIG_PATH/cwa/ingest:/books
+      - $DOCKER_CONFIG_PATH/shelfmark:/config
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.shelfmark.entrypoints=websecure"
+      - "traefik.http.routers.shelfmark.tls=true"
+      - "traefik.http.services.shelfmark.loadbalancer.server.port=8084"
+      - "com.centurylinklabs.watchtower.enable=true"
   #
   piwigo:
     image: lscr.io/linuxserver/piwigo:latest

@@ -144,6 +144,18 @@ sections:
         url: http://calibre-web.funkybeefunk.duckdns.org
         tags: [media]
 
+      - title: Calibre-Web-Automated
+        description: Ebooks - CWA (test)
+        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/calibre-web.png
+        url: http://cwa.funkybeefunk.duckdns.org
+        tags: [media]
+
+      - title: Shelfmark
+        description: Ebook search and download (feeds CWA)
+        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/shelfmark.png
+        url: http://shelfmark.funkybeefunk.duckdns.org
+        tags: [media]
+
   - name: Photos & Gallery
     icon: fas fa-images
     items:
