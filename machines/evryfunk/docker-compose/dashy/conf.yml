@@ -184,6 +184,12 @@ sections:
         url: https://scrutiny.funkyevryfunk.duckdns.org
         tags: [geek]
 
+      - title: Glances
+        description: Metrics & monitoring
+        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/glances.png
+        url: https://glances.funkyevryfunk.duckdns.org
+        tags: [geek]
+
       - title: Calibre Server
         description: Calibre Server - Ebooks Maintenance (brownfunk)
         icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/calibre.png
@@ -201,3 +207,15 @@ sections:
         icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/homer.png
         url: http://evryfunk.lan
         tags: [geek]
+
+  - name: monitoring
+    widgets:
+    - type: gl-disk-space
+      options:
+        hostname: https://glances.funkyevryfunk.duckdns.org
+    - type: gl-current-cpu
+      options:
+        hostname: https://glances.funkyevryfunk.duckdns.org
+    - type: gl-network-interfaces
+      options:
+        hostname: https://glances.funkyevryfunk.duckdns.org

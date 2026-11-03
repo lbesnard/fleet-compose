@@ -494,6 +494,38 @@ services:
     depends_on:
       - pihole_v6
       - traefik
+
+  glances:
+    image: nicolargo/glances:latest-full
+    container_name: glances
+    pid: host
+    read_only: true
+    privileged: false
+    environment:
+      - GLANCES_OPT=-C /glances/conf/glances.conf -w --enable-mcp --enable-plugin smart
+      - PUID=$PUID_USER
+      - PGID=$PGID_USER
+      - TZ=${TZ}
+      - GLANCES_OPT=-w
+    volumes:
+      - "/:/rootfs:ro"
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /etc/os-release:/etc/os-release:ro
+      - "./glances.conf:/glances/conf/glances.conf"
+    tmpfs:
+      - /tmp
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.glances.entrypoints=websecure"
+      - "traefik.http.routers.glances.tls=true"
+      - "traefik.http.services.glances.loadbalancer.server.port=61208"
+    depends_on:
+      - pihole_v6
+      - traefik
+
   #
   #### wireguard
   wireguard:
