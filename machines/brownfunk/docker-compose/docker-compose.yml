@@ -184,7 +184,7 @@ services:
       traefik.http.services.phpmyadmin.loadbalancer.server.port: '80'
 
   watchtower:
-    image: containrrr/watchtower
+    image: nickfedor/watchtower:latest
     container_name: watchtower
     environment:
       WATCHTOWER_LABEL_ENABLE: 1
