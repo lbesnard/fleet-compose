@@ -422,7 +422,6 @@ services:
       - PUID=$PUID_USER
       - PGID=$PGID_USER
       - TZ=${TZ}
-      - GLANCES_OPT=-w
     volumes:
       - "/:/rootfs:ro"
       - /var/run/docker.sock:/var/run/docker.sock:ro

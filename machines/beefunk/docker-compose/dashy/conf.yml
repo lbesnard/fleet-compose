@@ -298,7 +298,7 @@ sections:
       - title: Traefik
         description: Load Balancer
         icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/traefik.png
-        url: http://traefik.funkybrownfunk.duckdns.org
+        url: http://traefik.funkybeefunk.duckdns.org
         tags: [geek]
 
       - title: WG-Easy
