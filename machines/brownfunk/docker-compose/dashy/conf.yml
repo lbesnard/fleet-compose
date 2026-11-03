@@ -236,6 +236,12 @@ sections:
         url: http://phpmyadmin.funkybrownfunk.duckdns.org
         tags: [geek]
 
+      - title: Adminer
+        description: Adminer - MariaDB admin
+        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/adminer.png
+        url: http://adminer.funkybrownfunk.duckdns.org
+        tags: [geek]
+
       - title: Calibre Server
         description: Calibre Server - Ebooks Maintenance
         icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/calibre.png
