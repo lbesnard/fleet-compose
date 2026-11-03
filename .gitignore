@@ -16,6 +16,10 @@
 /machines/evryfunk/docker-compose/.env
 /machines/evryfunk/docker-compose/immich-app/.env
 /machines/evryfunknuc/docker-compose/.env
+/machines/bf-nas/docker-compose/.env
+/machines/bf-media/docker-compose/.env
+/machines/bf-media/docker-compose/traefik/acme/acme.json
+/machines/bf-media/docker-compose/traefik/certs/bf-media.key
 /machines/beefunk/docker-compose/homer/local/assets/icons/homer-icons/
 /machines/brownfunk/docker-compose/homer/local/assets/icons/homer-icons/
 /machines/brownfunk/docker-compose/homer-lan/local/assets/icons/homer-icons/
