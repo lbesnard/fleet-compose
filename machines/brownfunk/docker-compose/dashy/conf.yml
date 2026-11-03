@@ -248,11 +248,11 @@ sections:
         url: http://unmanic.funkybrownfunk.duckdns.org
         tags: [app]
 
-      - title: Portainer
-        description: Portainer - docker images
-        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/portainer.png
-        url: http://portainer.funkybrownfunk.duckdns.org
-        tags: [geek]
+      # - title: Portainer
+      #   description: Portainer - docker images
+      #   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/portainer.png
+      #   url: http://portainer.funkybrownfunk.duckdns.org
+      #   tags: [geek]
 
       - title: Traefik
         description: Load Balancer
