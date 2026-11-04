@@ -205,7 +205,7 @@ sections:
 
       - title: WG-Easy
         description: Wireguard Easy Server
-        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/wg-easy.png
+        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/wireguard.png
         url: https://wg-easy.funkybrownfunk.duckdns.org/
         tags: [geek]
 

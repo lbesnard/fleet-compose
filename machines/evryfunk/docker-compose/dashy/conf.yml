@@ -84,6 +84,12 @@ sections:
         url: https://immich.funkyevryfunk.duckdns.org
         tags: [media]
 
+      - title: Photo Kiosk
+        description: Immich Kiosk - slideshow
+        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/immich-kiosk.png
+        url: https://immich-kiosk.funkyevryfunk.duckdns.org
+        tags: [media]
+
       - title: Games
         description: Aerofoil - Switch games
         icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/nintendo-switch.png
@@ -179,7 +185,7 @@ sections:
 
       - title: WG-Easy
         description: Wireguard Easy Server
-        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/wg-easy.png
+        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/wireguard.png
         url: https://wg-easy.funkyevryfunk.duckdns.org/
         tags: [geek]
 
