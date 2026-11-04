@@ -1119,7 +1119,7 @@ services:
     volumes:
       - ./copyparty/cfg:/cfg:ro
       - $DOCKER_CONFIG_PATH/copyparty/hist:/hist
-      - $SHARE_PATH:/w/share
+      - $SHARE_PATH/copyparty:/w/share
     restart: unless-stopped
     networks:
       - proxy
