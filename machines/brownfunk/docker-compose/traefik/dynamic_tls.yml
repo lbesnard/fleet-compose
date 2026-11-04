@@ -18,8 +18,21 @@ tls:
         certFile: /certs/brownfunk.crt
         keyFile: /certs/brownfunk.key
 
-# Local services use defaultRule from docker-compose traefik config + labels.
-# Add routers here for remote services on other machines if needed.
-# http:
-#   routers: {}
-#   services: {}
+# Plain http: redirect everything to https. Priority 1 so that the explicit
+# `web` routers (homer-lan on the bare brownfunk.lan host) win.
+http:
+  routers:
+    http-to-https:
+      rule: "HostRegexp(`.+`)"
+      entryPoints:
+        - "web"
+      priority: 1
+      middlewares:
+        - "redirect-to-https"
+      service: noop@internal
+
+  middlewares:
+    redirect-to-https:
+      redirectScheme:
+        scheme: https
+        permanent: true

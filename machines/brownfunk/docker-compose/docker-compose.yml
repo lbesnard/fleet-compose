@@ -25,10 +25,8 @@ services:
     - --entrypoints.websecure.address=:443
     - --serversTransport.insecureSkipVerify=true # for nextcloud
 
-    # Keep global HTTP -> HTTPS redirect
-    - --entrypoints.web.http.redirections.entrypoint.to=websecure
-    - --entrypoints.web.http.redirections.entrypoint.scheme=https
-    - --entrypoints.web.http.redirections.entrypoint.permanent=true
+    # HTTP->HTTPS redirect lives in dynamic_tls.yml as a priority-1 catch-all,
+    # so plain http://brownfunk.lan can still reach homer without redirecting.
 
     - --providers.file.filename=/etc/traefik/dynamic_tls.yml
 
@@ -422,10 +420,14 @@ services:
     restart: unless-stopped
     labels:
     - traefik.enable=true
-    - traefik.http.routers.homer-lan.rule=Host(`home-lan.${SERVER_DOMAIN}.lan`) || Host(`home-lan.${SERVER_DOMAIN}.home`) || Host(`home-lan.${SERVER_DOMAIN}.local`) 
+    - traefik.http.routers.homer-lan.rule=Host(`home-lan.${SERVER_DOMAIN}.lan`) || Host(`home-lan.${SERVER_DOMAIN}.home`) || Host(`home-lan.${SERVER_DOMAIN}.local`)
     - traefik.http.routers.homer-lan.entrypoints=websecure
     - traefik.http.routers.homer-lan.tls=true
     - traefik.http.services.homer-lan.loadbalancer.server.port=8080
+    # Bare host on plain http (like evryfunk): http://brownfunk.lan -> homer, no redirect
+    - traefik.http.routers.homer-lan-bare.rule=Host(`${SERVER_DOMAIN}.lan`) || Host(`${SERVER_DOMAIN}.home`) || Host(`${SERVER_DOMAIN}.local`) || Host(`${SERVER_LAN_IP}`)
+    - traefik.http.routers.homer-lan-bare.entrypoints=web
+    - traefik.http.routers.homer-lan-bare.service=homer-lan
     networks:
     - proxy
     - frontend

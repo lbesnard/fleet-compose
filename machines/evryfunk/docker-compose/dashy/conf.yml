@@ -31,15 +31,15 @@ appConfig:
   defaultOpeningMethod: newtab
   language: en
   webSearch:
-    searchEngine: 'duckduckgo'
-    openingMethod: 'newtab'
+    searchEngine: "duckduckgo"
+    openingMethod: "newtab"
     searchBangs:
       /r: reddit
       /w: wikipedia
       /a: https://www.amazon.co.uk/s?k=
-      ':wolf': wolframalpha
-      ':so': stackoverflow
-      ':git': github
+      ":wolf": wolframalpha
+      ":so": stackoverflow
+      ":git": github
 
 sections:
   - name: home-widgets
@@ -223,17 +223,17 @@ sections:
       - title: Homer (legacy)
         description: Previous dashboard
         icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/homer.png
-        url: http://evryfunk.home:8080
+        url: http://evryfunk.home
         tags: [geek]
 
   - name: monitoring
     widgets:
-    - type: gl-disk-space
-      options:
-        hostname: https://glances.funkyevryfunk.duckdns.org
-    - type: gl-current-cpu
-      options:
-        hostname: https://glances.funkyevryfunk.duckdns.org
-    - type: gl-network-interfaces
-      options:
-        hostname: https://glances.funkyevryfunk.duckdns.org
+      - type: gl-disk-space
+        options:
+          hostname: https://glances.funkyevryfunk.duckdns.org
+      - type: gl-current-cpu
+        options:
+          hostname: https://glances.funkyevryfunk.duckdns.org
+      - type: gl-network-interfaces
+        options:
+          hostname: https://glances.funkyevryfunk.duckdns.org
