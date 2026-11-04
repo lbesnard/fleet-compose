@@ -4,7 +4,6 @@
   block:
     - ansible.builtin.stat: {path: "{{ plain }}", get_checksum: true}
       register: p
-      become: true
     - ansible.builtin.stat: {path: "{{ vault }}"}
       register: v
     - name: "Skip {{ it.1 }}: no plaintext (vault kept as is)"
@@ -23,4 +22,3 @@
       ansible.builtin.command: ansible-vault encrypt --output '{{ vault }}' '{{ plain }}'
       args: {chdir: "{{ root }}"}
       when: p.stat.exists and (not v.stat.exists or cur.stdout != p.stat.checksum)
-      become: true

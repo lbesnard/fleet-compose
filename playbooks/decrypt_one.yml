@@ -5,4 +5,5 @@
     - ansible.builtin.copy:
         src: "{{ root }}/machines/{{ it.0.key }}/{{ it.1 }}.vault"
         dest: "{{ dest }}"
+        owner: "{{ ansible_user_id }}"
         mode: "{{ '0600' if (it.1 | basename) in ['.env', 'acme.json'] or it.1.endswith('.key') else '0644' }}"
