@@ -182,6 +182,12 @@ http:
       entryPoints: ["navidrome"]
       service: navidrome-remote
 
+    shelfmark:
+      rule: "Host(`shelfmark.evryfunk.lan`) || Host(`shelfmark.evryfunk.home`) || Host(`shelfmark.evryfunk.local`) || Host(`shelfmark.funkyevryfunk.duckdns.org`)"
+      entryPoints: ["websecure"]
+      tls: {}
+      service: shelfmark-remote
+
   middlewares:
     redirect-to-https:
       redirectScheme:
@@ -275,6 +281,10 @@ http:
       loadBalancer:
         servers:
           - url: "http://brownfunk.lan:8082"
+    shelfmark-remote:
+      loadBalancer:
+        servers:
+          - url: "http://brownfunk.lan:8084"
 
   serversTransports:
     insecure-tls:

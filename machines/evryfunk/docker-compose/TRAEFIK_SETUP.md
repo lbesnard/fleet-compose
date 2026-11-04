@@ -71,6 +71,7 @@ through the pihole container).
 | calibre | `calibre.<domain>` | `evryfunk.lan:8081` | `brownfunk.lan:8081` |
 | navidrome | `navidrome.<domain>` | `evryfunk.lan:8082` | `brownfunk.lan:8082` |
 | calibre-web | `calibre-web.<domain>` | `evryfunk.lan:8083` | `brownfunk.lan:8083` |
+| shelfmark | `shelfmark.<domain>` | none (https only) | `brownfunk.lan:8084` |
 
 The `evryfunk.lan:<port>` entry only needs DNS for `evryfunk.lan` (or use the LAN IP). The client
 never has to reach `brownfunk.lan`.

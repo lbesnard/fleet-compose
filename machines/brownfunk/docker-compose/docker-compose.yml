@@ -394,6 +394,8 @@ services:
       # downloads land in CWA's ingest folder, CWA imports them and deletes the files
       - $DOCKER_CONFIG_PATH/cwa/ingest:/books
       - $DOCKER_CONFIG_PATH/shelfmark:/config
+    ports:
+      - 8084:8084   # for evryfunk's traefik (shelfmark-remote)
     restart: unless-stopped
     networks:
       - proxy
