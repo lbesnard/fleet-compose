@@ -1103,6 +1103,30 @@ services:
       - "traefik.http.routers.filebrowserquantum.tls=true"
       - "traefik.http.services.filebrowserquantum.loadbalancer.server.port=80"
       - "com.centurylinklabs.watchtower.enable=true"
+
+  copyparty:
+    image: copyparty/ac:latest
+    container_name: copyparty
+    depends_on:
+      media-mount-check:
+        condition: service_healthy
+    user: "${PUID_USER}:${PGID_USER}"
+    environment:
+      - TZ=$TZ
+      - XDG_CONFIG_HOME=/hist   # persistent state (filekeys), /cfg is read-only
+    volumes:
+      - ./copyparty/cfg:/cfg:ro
+      - $DOCKER_CONFIG_PATH/copyparty/hist:/hist
+      - $SHARE_PATH:/w/share
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.copyparty.entrypoints=websecure"
+      - "traefik.http.routers.copyparty.tls=true"
+      - "traefik.http.services.copyparty.loadbalancer.server.port=3923"
+      - "com.centurylinklabs.watchtower.enable=true"
   memos:
     image: neosmemo/memos:latest
     container_name: memos

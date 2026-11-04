@@ -241,6 +241,12 @@ sections:
         url: http://filebrowserquantum.funkybeefunk.duckdns.org
         tags: [tools]
 
+      - title: Copyparty
+        description: File server - upload, download, share
+        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/copyparty.png
+        url: http://copyparty.funkybeefunk.duckdns.org
+        tags: [tools]
+
   - name: Downloads & Indexers
     icon: fas fa-download
     items:
