@@ -72,6 +72,12 @@ sections:
         url: https://calibre-web.funkyevryfunk.duckdns.org
         tags: [media]
 
+      - title: Shelfmark
+        description: Ebook search and download (brownfunk, feeds CWA)
+        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/shelfmark.png
+        url: https://shelfmark.funkyevryfunk.duckdns.org
+        tags: [media]
+
       - title: Photos
         description: Immich - photos
         icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/immich.png
