@@ -217,7 +217,7 @@ sections:
       - title: Homer (legacy)
         description: Previous dashboard
         icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/homer.png
-        url: http://evryfunk.lan
+        url: http://evryfunk.home:8080
         tags: [geek]
 
   - name: monitoring
