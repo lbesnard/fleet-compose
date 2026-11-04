@@ -16,6 +16,7 @@
 /machines/brownfunk/docker-compose/telegraf.conf
 /machines/evryfunk/docker-compose/.env
 /machines/evryfunk/docker-compose/immich-app/.env
+/machines/evryfunk/docker-compose/copyparty/cfg/copyparty.conf
 /machines/evryfunk/docker-compose/traefik/acme/acme.json
 /machines/evryfunk/docker-compose/traefik/certs/evryfunk.key
 /machines/evryfunknuc/docker-compose/.env

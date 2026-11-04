@@ -90,6 +90,7 @@ ports unchanged.
 | lingodiary | 8084 | | aerofoil | 8465 |
 | tandoor | 1141 | | filebrowser | 9295 |
 | scrutiny | 8033 | | firefox | 3008 |
+| copyparty | 3923 | | | |
 
 Labelled containers: `dashy`, `glances`, `wg-easy` (web UI only through traefik), and `homer`
 (bare host, plain http, direct port moved from 80 to **8080**).

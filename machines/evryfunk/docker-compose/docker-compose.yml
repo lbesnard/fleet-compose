@@ -762,7 +762,21 @@ services:
       - $PICTURES_PATH:/srv/media/pictures:ro
       - $TORRENT_PATH:/srv/media/torrent:ro
       - $SHARE_PATH:/srv/media/share
-      
+
+  copyparty:
+    image: copyparty/ac:latest
+    container_name: copyparty
+    user: "${PUID_USER}:${PGID_USER}"
+    environment:
+      - TZ=$TZ
+      - XDG_CONFIG_HOME=/hist   # persistent state (filekeys), /cfg is read-only
+    ports:
+      - 3923:3923
+    volumes:
+      - ./copyparty/cfg:/cfg:ro
+      - $DOCKER_CONFIG_PATH/copyparty/hist:/hist
+      - $SHARE_PATH/copyparty:/w/share
+    restart: unless-stopped
  
   scrutiny:
     container_name: scrutiny

@@ -90,6 +90,12 @@ sections:
         url: https://filebrowser.funkyevryfunk.duckdns.org
         tags: [tools]
 
+      - title: Copyparty
+        description: File server - drop place, upload and download
+        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/copyparty.png
+        url: https://copyparty.funkyevryfunk.duckdns.org
+        tags: [tools]
+
   - name: Cloud & Daily
     icon: fas fa-cloud
     items:

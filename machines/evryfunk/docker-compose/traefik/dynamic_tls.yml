@@ -83,6 +83,12 @@ http:
       tls: {}
       service: filebrowser
 
+    copyparty:
+      rule: "Host(`copyparty.evryfunk.lan`) || Host(`copyparty.evryfunk.home`) || Host(`copyparty.evryfunk.local`) || Host(`copyparty.funkyevryfunk.duckdns.org`)"
+      entryPoints: ["websecure"]
+      tls: {}
+      service: copyparty
+
     scrutiny:
       rule: "Host(`scrutiny.evryfunk.lan`) || Host(`scrutiny.evryfunk.home`) || Host(`scrutiny.evryfunk.local`) || Host(`scrutiny.funkyevryfunk.duckdns.org`)"
       entryPoints: ["websecure"]
@@ -216,6 +222,10 @@ http:
       loadBalancer:
         servers:
           - url: "http://host.docker.internal:9295"
+    copyparty:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:3923"
     scrutiny:
       loadBalancer:
         servers:
