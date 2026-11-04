@@ -860,7 +860,8 @@ services:
     volumes:
       - $DOCKER_CONFIG_PATH/cwa/config:/config
       - $DOCKER_CONFIG_PATH/cwa/ingest:/cwa-book-ingest
-      - $DOCKER_CONFIG_PATH/cwa/library:/calibre-library
+      # existing calibre library (same folder calibre mounts as /config). CWA writes to metadata.db
+      - $EBOOKS_PATH:/calibre-library
     restart: unless-stopped
     networks:
       - proxy
