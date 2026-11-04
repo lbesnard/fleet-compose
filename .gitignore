@@ -7,6 +7,7 @@
 /machines/beefunk/docker-compose/traefik/certs/beefunk.key
 /machines/beefunk/docker-compose/mpd-dynamic/config/mpd_dynamicrc
 /machines/beefunk/docker-compose/mpd-dynamic/config/mpd_dynamic-blacklist.txt
+/machines/beefunk/docker-compose/copyparty/cfg/copyparty.conf
 /machines/beefunk/docker-compose/monitoring/docker-compose.yml
 /machines/brownfunk/docker-compose/.env
 /machines/brownfunk/docker-compose/traefik/acme/acme.json
@@ -15,6 +16,9 @@
 /machines/brownfunk/docker-compose/telegraf.conf
 /machines/evryfunk/docker-compose/.env
 /machines/evryfunk/docker-compose/immich-app/.env
+/machines/evryfunk/docker-compose/copyparty/cfg/copyparty.conf
+/machines/evryfunk/docker-compose/traefik/acme/acme.json
+/machines/evryfunk/docker-compose/traefik/certs/evryfunk.key
 /machines/evryfunknuc/docker-compose/.env
 /machines/bf-nas/docker-compose/.env
 /machines/bf-media/docker-compose/.env

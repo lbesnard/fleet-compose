@@ -1,0 +1,44 @@
+// Grafana Alloy: replaces promtail (deprecated). Ships host logs and docker container logs to Loki.
+
+loki.write "default" {
+  endpoint {
+    url = "http://beefunk:3100/loki/api/v1/push"
+  }
+}
+
+// Host logs. Missing files are skipped.
+local.file_match "system" {
+  path_targets = [
+    {__path__ = "/var/log/syslog",       job = "varlogs"},
+    {__path__ = "/var/log/auth.log",     job = "varlogs"},
+    {__path__ = "/var/log/kern.log",     job = "varlogs"},
+    {__path__ = "/var/log/pwrstatd.log", job = "varlogs"},
+  ]
+}
+
+loki.source.file "system" {
+  targets    = local.file_match.system.targets
+  forward_to = [loki.write.default.receiver]
+}
+
+// Docker container logs, read through the docker API (no /var/lib/docker mount needed).
+discovery.docker "containers" {
+  host             = "unix:///var/run/docker.sock"
+  refresh_interval = "10s"
+}
+
+discovery.relabel "containers" {
+  targets = discovery.docker.containers.targets
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(.*)"
+    target_label  = "container"
+  }
+}
+
+loki.source.docker "containers" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.relabel.containers.output
+  forward_to = [loki.write.default.receiver]
+}

@@ -33,27 +33,23 @@ services:
 
 
   samba:
-    image: dperson/samba
+    image: crazymax/samba:latest
     container_name: samba
     environment:
       TZ: $TZ
+      CONFIG_FILE: /config.yml
+      # default is the private ranges only; 100.64.0.0/10 = tailscale
+      SAMBA_HOSTS_ALLOW: "127.0.0.0/8 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 100.64.0.0/10"
     ports:
-      - "139:139/tcp"
       - "445:445/tcp"
-    read_only: true
-    tmpfs:
-      - /tmp
-    restart: always
-    stdin_open: true
-    tty: true
     volumes:
       - $PICTURES_PATH:/share5
-    command: |
-      -s "Pictures;/share5;yes;no;no;$USER;$USER;$USER;pictures ro except user"
-      -u "guest;guest"
-      -u "$USER;$SAMBA_PASSWORD"
-      -g "map to guest = Bad User"
-      -g "guest account = nobody"
+    configs:
+      - source: samba_config
+        target: /config.yml
+    secrets:
+      - samba_password
+    restart: always
   homer:
     image: b4bz/homer:latest
     container_name: homer
@@ -133,7 +129,7 @@ services:
 
 
   watchtower:
-    image: containrrr/watchtower
+    image: nickfedor/watchtower:latest
     container_name: watchtower
     environment:
       WATCHTOWER_LABEL_ENABLE: 1
@@ -145,6 +141,13 @@ services:
     labels:
       com.centurylinklabs.watchtower.enable: true
 #
+configs:
+  samba_config:
+    file: ./samba/config.yml
+
+secrets:
+  samba_password:
+    environment: SAMBA_PASSWORD
 volumes:
   netdatalib:
   netdatacache:

@@ -14,6 +14,9 @@ pageInfo:
     - title: Beefunk Homepage
       path: http://home.funkybeefunk.duckdns.org
       target: newtab
+    - title: Evryfunk Homepage
+      path: http://home.funkyevryfunk.duckdns.org
+      target: newtab
   footer: |
     Created with ❤️ | <a href="https://hedgedoc.funkybrownfunk.duckdns.org/s/H1tA_LShH" target="_blank">Server Howto</a>
 
@@ -141,6 +144,18 @@ sections:
         url: http://calibre-web.funkybeefunk.duckdns.org
         tags: [media]
 
+      - title: Calibre-Web-Automated
+        description: Ebooks - CWA (test)
+        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/calibre-web.png
+        url: http://cwa.funkybeefunk.duckdns.org
+        tags: [media]
+
+      - title: Shelfmark
+        description: Ebook search and download (feeds CWA)
+        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/shelfmark.png
+        url: http://shelfmark.funkybeefunk.duckdns.org
+        tags: [media]
+
   - name: Photos & Gallery
     icon: fas fa-images
     items:
@@ -226,6 +241,12 @@ sections:
         url: http://filebrowserquantum.funkybeefunk.duckdns.org
         tags: [tools]
 
+      - title: Copyparty
+        description: File server - upload, download, share
+        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/copyparty.png
+        url: http://copyparty.funkybeefunk.duckdns.org
+        tags: [tools]
+
   - name: Downloads & Indexers
     icon: fas fa-download
     items:
@@ -295,7 +316,13 @@ sections:
       - title: Traefik
         description: Load Balancer
         icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/traefik.png
-        url: http://traefik.funkybrownfunk.duckdns.org
+        url: http://traefik.funkybeefunk.duckdns.org
+        tags: [geek]
+
+      - title: WG-Easy
+        description: Wireguard Easy Server
+        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/wireguard.png
+        url: https://wg-easy.funkybeefunk.duckdns.org/
         tags: [geek]
 
       - title: Cockpit
@@ -340,6 +367,12 @@ sections:
         description: PhpMyAdmin
         icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/phpmyadmin.png
         url: http://phpmyadmin.funkybrownfunk.duckdns.org
+        tags: [geek]
+
+      - title: Adminer
+        description: Adminer - MariaDB admin
+        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/adminer.png
+        url: http://adminer.funkybeefunk.duckdns.org
         tags: [geek]
 
 

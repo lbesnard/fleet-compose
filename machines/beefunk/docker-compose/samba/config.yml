@@ -1,0 +1,82 @@
+# crazymax/samba config (see https://github.com/crazy-max/docker-samba).
+# The password of the main user is not here: it comes from the samba_password docker
+# secret, built from SAMBA_PASSWORD in .env.
+auth:
+  - user: lbesnard
+    group: users
+    uid: 1000
+    gid: 100
+    password_file: /run/secrets/samba_password
+  - user: guest
+    group: guest
+    uid: 1100
+    gid: 1100
+    password: guest
+
+global:
+  - "map to guest = Bad User"
+  - "guest account = nobody"
+  - "force user = lbesnard"
+  - "force group = users"
+
+share:
+  - name: "Movies"
+    path: /share1
+    browsable: yes
+    readonly: yes
+    guestok: yes
+    writelist: lbesnard
+    veto: no
+    recycle: no
+  - name: "Shows"
+    path: /share2
+    browsable: yes
+    readonly: yes
+    guestok: yes
+    writelist: lbesnard
+    veto: no
+    recycle: no
+  - name: "Self Improvement"
+    path: /share3
+    browsable: yes
+    readonly: no
+    guestok: no
+    validusers: lbesnard
+    writelist: lbesnard
+    veto: no
+    recycle: no
+  - name: "Pictures_export"
+    path: /share4
+    browsable: yes
+    readonly: no
+    guestok: no
+    validusers: lbesnard
+    writelist: lbesnard
+    veto: no
+    recycle: no
+  - name: "Pictures"
+    path: /share5
+    browsable: yes
+    readonly: no
+    guestok: no
+    validusers: lbesnard
+    writelist: lbesnard
+    veto: no
+    recycle: no
+  - name: "Music"
+    path: /share6
+    browsable: yes
+    readonly: yes
+    guestok: yes
+    writelist: lbesnard
+    veto: no
+    recycle: no
+  - name: "Switch"
+    path: /share7
+    browsable: yes
+    readonly: yes
+    guestok: yes
+    writelist: lbesnard
+    veto: no
+    recycle: no
+

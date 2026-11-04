@@ -2,7 +2,7 @@
     plain: "{{ root }}/machines/{{ it.0.key }}/{{ it.1 }}"
     vault: "{{ root }}/machines/{{ it.0.key }}/{{ it.1 }}.vault"
   block:
-    - ansible.builtin.stat: {path: "{{ plain }}"}
+    - ansible.builtin.stat: {path: "{{ plain }}", get_checksum: true}
       register: p
     - ansible.builtin.stat: {path: "{{ vault }}"}
       register: v

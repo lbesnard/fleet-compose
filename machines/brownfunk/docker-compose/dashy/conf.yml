@@ -14,6 +14,9 @@ pageInfo:
     - title: Beefunk Homepage
       path: http://home.funkybeefunk.duckdns.org
       target: newtab
+    - title: Evryfunk Homepage
+      path: http://home.funkyevryfunk.duckdns.org
+      target: newtab
   footer: |
     Created with ❤️ | <a href="http://hedgedoc.funkybrownfunk.duckdns.org/s/H1tA_LShH" target="_blank">Server Howto</a>
 
@@ -93,6 +96,18 @@ sections:
         description: Calibre Web - Ebooks download
         icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/calibre-web.png
         url: http://calibre-web.funkybrownfunk.duckdns.org
+        tags: [media]
+
+      - title: Calibre-Web-Automated
+        description: Ebooks - CWA (test)
+        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/calibre-web.png
+        url: http://cwa.funkybrownfunk.duckdns.org
+        tags: [media]
+
+      - title: Shelfmark
+        description: Ebook search and download (feeds CWA)
+        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/shelfmark.png
+        url: http://shelfmark.funkybrownfunk.duckdns.org
         tags: [media]
 
       - title: File Browser
@@ -190,7 +205,7 @@ sections:
 
       - title: WG-Easy
         description: Wireguard Easy Server
-        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/wg-easy.png
+        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/wireguard.png
         url: https://wg-easy.funkybrownfunk.duckdns.org/
         tags: [geek]
 
@@ -233,6 +248,12 @@ sections:
         url: http://phpmyadmin.funkybrownfunk.duckdns.org
         tags: [geek]
 
+      - title: Adminer
+        description: Adminer - MariaDB admin
+        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/adminer.png
+        url: http://adminer.funkybrownfunk.duckdns.org
+        tags: [geek]
+
       - title: Calibre Server
         description: Calibre Server - Ebooks Maintenance
         icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/calibre.png
@@ -245,11 +266,11 @@ sections:
         url: http://unmanic.funkybrownfunk.duckdns.org
         tags: [app]
 
-      - title: Portainer
-        description: Portainer - docker images
-        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/portainer.png
-        url: http://portainer.funkybrownfunk.duckdns.org
-        tags: [geek]
+      # - title: Portainer
+      #   description: Portainer - docker images
+      #   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/portainer.png
+      #   url: http://portainer.funkybrownfunk.duckdns.org
+      #   tags: [geek]
 
       - title: Traefik
         description: Load Balancer
