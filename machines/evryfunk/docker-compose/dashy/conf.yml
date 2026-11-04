@@ -47,6 +47,14 @@ sections:
       - type: clock
         options:
           timezone: Europe/Paris
+
+      - type: public-holidays
+        options:
+          country: FR
+          holidayType: all
+          monthsToShow: 2
+          lang: fr
+
       - type: xkcd-comic
         options:
           comic: latest
