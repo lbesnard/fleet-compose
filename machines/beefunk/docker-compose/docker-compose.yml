@@ -500,11 +500,13 @@ services:
     image: adminer:latest
     container_name: adminer
     environment:
-      - ADMINER_DEFAULT_SERVER=mariadb
+      - ADMINER_DEFAULT_SERVER=${SERVER_DOMAIN}.lan
     restart: unless-stopped
     networks:
-      - default
+      - frontend
       - proxy
+    dns:
+      - $PIHOLE_DOCKER_SUB_IP_DNS
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.adminer.entrypoints=websecure"

@@ -192,6 +192,8 @@ services:
     networks:
       - frontend
       - proxy
+    dns:
+      - $PIHOLE_DOCKER_SUB_IP_DNS
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.adminer.entrypoints=websecure"
