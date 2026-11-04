@@ -13,6 +13,7 @@ services:
     container_name: traefik
     command:
       - --providers.docker=true
+      - --log.level=DEBUG
       - --providers.docker.exposedbydefault=false
       - --providers.docker.network=proxy
       - '--providers.docker.defaultRule=Host(`{{ index .Labels "com.docker.compose.service" }}.${SERVER_DOMAIN}.lan`) || Host(`{{ index .Labels "com.docker.compose.service" }}.${SERVER_DOMAIN}.home`) || Host(`{{ index .Labels "com.docker.compose.service" }}.${SERVER_DOMAIN}.local`) || Host(`{{ index .Labels "com.docker.compose.service" }}.${TRAEFIK_DUCKDNS_DOMAIN}.duckdns.org`)'
