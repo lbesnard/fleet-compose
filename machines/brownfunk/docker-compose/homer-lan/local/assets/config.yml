@@ -131,6 +131,22 @@ services:
         url: "http://brownfunk.lan:8083"
         target: "_blank"
 
+      - name: "CWA"
+        logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/calibre-web-automated.png"
+        subtitle: "Calibre Web Automated - Ebooks library"
+        tag: "app"
+        tagstyle: "is-success"
+        url: "http://brownfunk.lan:8085"
+        target: "_blank"
+
+      - name: "Shelfmark"
+        logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/shelfmark.png"
+        subtitle: "Shelfmark - Ebook search and download (feeds CWA)"
+        tag: "app"
+        tagstyle: "is-success"
+        url: "http://brownfunk.lan:8084"
+        target: "_blank"
+
       # - name: "Audiobooks"
       #   logo: "http://brownfunk.lan:4040/_nuxt/img/icon.14e26ae.svg"
       #   subtitle: "AudiobookShelf - Audiobook streaming"
