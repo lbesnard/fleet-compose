@@ -8,10 +8,10 @@ Docker Compose stacks for the three home machines, with secrets encrypted in-rep
 | brownfunk   | bfunk     | `machines/brownfunk/` |
 | evryfunk    | efunk     | `machines/evryfunk/`  |
 | evryfunknuc    | evryfunknuc  | `machines/evryfunknuc/`  |
-| brownfunk-nas   | bf-nas (Fleet-Control VM)   | `machines/brownfunk-nas/`   |
-| brownfunk-media | bf-media (Fleet-Control VM) | `machines/brownfunk-media/` |
-| beefunk-nas     | bee-nas (Fleet-Control VM)  | `machines/beefunk-nas/`     |
-| beefunk-media   | bee-media (Fleet-Control VM)| `machines/beefunk-media/`   |
+| brownfunk-nas   | VM of the same name (Fleet-Control) | `machines/brownfunk-nas/`   |
+| brownfunk-media | VM of the same name (Fleet-Control) | `machines/brownfunk-media/` |
+| beefunk-nas     | VM of the same name (Fleet-Control) | `machines/beefunk-nas/`     |
+| beefunk-media   | VM of the same name (Fleet-Control) | `machines/beefunk-media/`   |
 
 `<host>-nas` / `<host>-media` are the VMs that [Fleet-Control](https://github.com/lbesnard/Fleet-Control) (terraform + ansible) creates on the Proxmox hosts `brownfunk` / `beefunk`. They replace the single-machine `brownfunk` / `beefunk` stacks, which are kept until the migration is done. There is no `-net` VM.
 
