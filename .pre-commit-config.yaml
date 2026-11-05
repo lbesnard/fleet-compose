@@ -1,0 +1,16 @@
+# Enable: pre-commit install   (install.sh does it). Run on everything: pre-commit run --all-files
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+      - id: check-merge-conflict
+  - repo: local
+    hooks:
+      - id: check-secrets
+        name: no plaintext secrets / unencrypted vaults
+        entry: scripts/check-secrets.sh
+        language: script
+        # pre-commit only passes added/changed files; deletions are skipped
+        files: ''

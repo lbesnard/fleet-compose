@@ -59,7 +59,9 @@ else
   echo "saved to $KEY"
 fi
 
-git config core.hooksPath .githooks
+git config --unset-all core.hooksPath 2>/dev/null || true   # old .githooks setup
+if command -v pre-commit >/dev/null; then pre-commit install >/dev/null && say "pre-commit hook installed"
+else echo "pre-commit not found: install it (pipx install pre-commit / brew install pre-commit) then run: pre-commit install"; fi
 install -d -m 700 "$(dirname "$CHOICE")"; echo "$machine" > "$CHOICE"
 
 # 4. decrypt + vendor

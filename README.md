@@ -19,7 +19,7 @@ git clone git@github.com:lbesnard/fleet-compose.git && cd fleet-compose
 ./install.sh
 ```
 
-`install.sh` only decrypts; it never runs docker. It installs ansible/git if missing (asks first), resolves the machine, prompts for the vault password and checks it against a real vault file before saving it to `~/.config/fleet-compose/vault-pass`, enables the git hook, then decrypts the secrets and clones the vendored repos. Options: `--machine NAME`, `--yes` (no prompts), and `FLEET_VAULT_PASS` for a non-interactive password.
+`install.sh` only decrypts; it never runs docker. It installs ansible/git if missing (asks first), resolves the machine, prompts for the vault password and checks it against a real vault file before saving it to `~/.config/fleet-compose/vault-pass`, installs the pre-commit hook (if `pre-commit` is available), then decrypts the secrets and clones the vendored repos. Options: `--machine NAME`, `--yes` (no prompts), and `FLEET_VAULT_PASS` for a non-interactive password.
 
 Machine: `--machine NAME`, else `$FLEET_MACHINE`, else the choice saved from a previous run (`~/.config/fleet-compose/machine`), else a menu. Hostnames are not used. After that, `./fleet sync` and `./fleet decrypt` need no argument.
 
@@ -44,9 +44,54 @@ Warning: `./fleet decrypt` overwrites local plaintext with the vault content. Ru
 | add a new secret file | add path to `secrets.yml`, create it, `./fleet encrypt` (also updates `.gitignore`) |
 | decrypt elsewhere | `ansible-playbook playbooks/decrypt.yml -e machine=beefunk -e dest_root=/opt/stacks` |
 
-The pre-commit hook blocks staged plaintext secrets and malformed `.vault` files.
+Commits are checked by [pre-commit](https://pre-commit.com) (`.pre-commit-config.yaml`): staged plaintext secrets, unencrypted `.vault` files (`scripts/check-secrets.sh`), invalid YAML and merge-conflict markers are refused. Install once with `pipx install pre-commit` (or `brew install pre-commit`) then `pre-commit install`; `install.sh` runs the latter. Check everything with `pre-commit run --all-files`.
 
 ## The vault password
 
 `~/.config/fleet-compose/vault-pass` is the single key to everything. It is **not** in the repo.
 Lose it and the `.vault` files are unrecoverable, so keep a copy in your password manager.
+
+## Shell completion
+
+`./fleet <TAB>` completes subcommands, machine names (read from `machines/`) and, for `edit`, `.vault` files.
+
+**zsh**
+
+```sh
+cp completions/_fleet ~/.zsh_complete/      # any directory on $fpath, file must be named _fleet
+rm -f ~/.zcompdump*; exec zsh               # rebuild the completion cache
+```
+
+If your `compinit` runs with `-C` (cached), it will not see new completion files until the cache is deleted, hence the `rm`.
+
+**bash**
+
+```sh
+echo "source $PWD/completions/fleet.bash" >> ~/.bashrc
+```
+
+Both work for `fleet` (if it is on your `PATH`) and `./fleet`. Outside the repo, put `fleet` on your `PATH` or set `FLEET_DIR=/path/to/fleet-compose` so machine names can be found; otherwise a built-in list is used.
+
+## Glossary
+
+| term | meaning |
+|------|---------|
+| **machine** | one of the hosts in the table above. Each has its own dir under `machines/` and its own stack. `all` means every machine. |
+| **stack** | the set of containers described by a machine's `docker-compose.yml`. |
+| **secret** | a file listed in `secrets.yml` (`.env`, `acme.json`, keys, ...). Committed only in encrypted form. |
+| **vault file** (`*.vault`) | the encrypted copy of a secret, made by `ansible-vault`. This is what lives in git. |
+| **plaintext** | the decrypted secret next to it. Gitignored and never committed. |
+| **vault password** | the one passphrase that encrypts and decrypts every `.vault` file (see below). |
+| **decrypt / encrypt** | `.vault` to plaintext / plaintext to `.vault`. `encrypt` only rewrites files that changed. |
+| **vendored repo** | a third-party git repo (homer-icons, explorer, ifm) that a stack needs but that is not ours to commit here. `vendor.yml` lists each one with a URL and an exact commit; `./fleet vendor` clones it into the machine dir at that commit. The clones are gitignored, so builds are reproducible without copying someone else's code into this repo. |
+| **sync** | `decrypt` + `vendor`: bring a fresh checkout to a runnable state. |
+| **pre-commit hook** | `.pre-commit-config.yaml`; refuses commits that contain plaintext secrets, unencrypted `.vault` files or invalid YAML. |
+
+### keygen vs rekey
+
+Both deal with the vault password, at different moments.
+
+- **`./fleet keygen`**: first time only. Creates a new random password in `~/.config/fleet-compose/vault-pass`. It refuses to run if that file already exists. Use it when starting a brand-new vault with nothing encrypted yet.
+- **`./fleet rekey`**: the vault already exists and you want a *different* password (leaked, rotated, ...). It re-encrypts every `.vault` file under the new password, saves the new password as the key, and keeps the old one at `vault-pass.old`. Afterwards commit the re-encrypted files and copy the new password to your other machines.
+
+In short: `keygen` makes the first key, `rekey` replaces an existing one.
