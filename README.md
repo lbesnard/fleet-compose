@@ -19,6 +19,7 @@ Docker Compose stacks for the three home machines, with secrets encrypted in-rep
 - **media** (`/mnt/nfs/<key>/...`, mounted from the NAS): everything else, including traefik, pihole, wireguard and duckdns. Local DNS records are in `pihole/etc-dnsmasq.d/02-custom.conf`; Ansible adds a generated, gitignored `05-lan.conf` next to it.
 - **jellyfin** runs in its own LXC. Traefik routes to it (and to scrutiny on the NAS) from `traefik/dynamic_tls.yml`; the IPs there are hardcoded because the file provider cannot read `.env`.
 - Which folders are exported and which `*_PATH` maps to what is defined in the Fleet-Control vault (`vars/paths.yml`, `storage_map`). Fleet-Control clones this repo on each VM and runs `install.sh --machine <host>-<type>`.
+- Hard-coded IPs (VM/LXC/Tailscale addresses in `.env`, pihole, traefik, monitoring) are found and changed in both repos by `Fleet-Control/scripts/change-ip.sh` (`--list`, then `OLD NEW [--apply]`).
 
 Each machine dir holds `docker-compose/…`. Secrets are committed as `<file>.vault`; the plaintext is gitignored.
 `secrets.yml` lists which files are secret; `vendor.yml` pins third-party repos (ifm, explorer, homer-icons) that are cloned, not committed.
