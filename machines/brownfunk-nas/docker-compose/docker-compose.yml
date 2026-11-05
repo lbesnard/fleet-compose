@@ -1,0 +1,101 @@
+networks:
+  frontend:
+    ipam:
+      config:
+      - subnet: $DOCKER_SUBNET_1
+
+services:
+  rsync-server:
+    image: quentintin/rsync-server
+    volumes:
+    - $HOME/.ssh/id_rsa.pub:/root/.ssh/authorized_keys
+    - $EBOOKS_AUDIOBOOKS_PATH:/data/ebooks_audiobooks:ro
+    - $EBOOKS_FR_PATH:/data/ebooks_fr:ro
+    - $GAMES_PATH:/data/games:ro
+    - $SWITCH_HOMEBREW_PATH:/data/Switch_Homebrew:ro
+    - $PS4_PATH:/data/PS4:ro
+    - $MOVIES_PATH:/data/movies:ro
+    - $MOVIES_FR_PATH:/data/Movies(French):ro
+    - $MOVIES_SPORT_PATH:/data/Sport:ro
+    - $TV_SHOWS_PATH:/data/TV Shows:ro
+    - $MUSIC_ROOT_PATH:/data/music:ro
+    - $PICTURES_PATH:/data/pictures:ro
+    - $PIWIGO_CONFIG_PATH/piwigo/www/gallery/upload:/data/pictures_piwigo:ro
+    - $SHARE_PATH:/data/share:ro
+    - $TORRENT_PATH:/data/torrent:ro
+    - $SELF_IMPROVEMENT_PATH:/data/self_improvement:ro
+    - $PODCASTS_PATH:/data/podcasts:ro
+    - $NEXTCLOUD_DATA_PATH:/data/nextcloud:ro
+    - $TORRENT_PATH/data/games:/data/games_torrent:ro
+    environment:
+      PUID: $PUID_USER
+      PGID: $PGID_USER
+    networks:
+      frontend: null
+    ports:
+    - '9000:22'
+    restart: always
+
+  samba:
+    image: crazymax/samba:latest
+    container_name: samba
+    environment:
+      TZ: $TZ
+      CONFIG_FILE: /config.yml
+      # default is the private ranges only; 100.64.0.0/10 = tailscale
+      SAMBA_HOSTS_ALLOW: "127.0.0.0/8 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 100.64.0.0/10"
+    ports:
+      - "445:445/tcp"
+    volumes:
+    - $EBOOKS_AUDIOBOOKS_PATH:/share1:ro
+    - $GAMES_PATH:/share2:ro
+    - $MOVIES_PATH:/share3:ro
+    - $MUSIC_PATH:/share4:ro
+    - $PICTURES_PATH:/share5
+    - $SHARE_PATH:/share6
+    - $TORRENT_PATH:/share7:ro
+    - $SELF_IMPROVEMENT_PATH:/share8:ro
+    - $PODCASTS_PATH:/share9:ro
+    - $TV_SHOWS_PATH:/share10:ro
+    configs:
+      - source: samba_config
+        target: /config.yml
+    secrets:
+      - samba_password
+    restart: always
+
+
+  scrutiny:
+    container_name: scrutiny
+    image: ghcr.io/analogj/scrutiny:master-omnibus
+    ports:
+    - 8033:8080 # webapp
+    - 8086:8086 # influxdb admin
+    cap_add:
+    - SYS_RAWIO
+    volumes:
+    - /run/udev:/run/udev:ro
+    - $DOCKER_CONFIG_PATH/scrutiny/config:/opt/scrutiny/config
+    - $DOCKER_CONFIG_PATH/scrutiny/influxdb:/opt/scrutiny/influxdb
+    devices:
+    - /dev/sdc
+    - /dev/sda
+    - /dev/sdf
+    - /dev/sdd
+    - /dev/sde
+    - /dev/sdb
+    environment:
+    - COLLECTOR_CRON_SCHEDULE="*/5 * * * *"
+    - PUID=$PUID_USER
+    - PGID=$PGID_USER
+    - TZ=$TZ
+    - WATCHTOWER_CLEANUP=true
+    restart: unless-stopped
+
+configs:
+  samba_config:
+    file: ./samba/config.yml
+
+secrets:
+  samba_password:
+    environment: SAMBA_PASSWORD

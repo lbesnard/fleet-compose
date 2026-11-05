@@ -1,0 +1,77 @@
+services:
+  rsync-server:
+    image: quentintin/rsync-server
+    container_name: rsync-server
+
+    volumes:
+      - $HOME/.ssh/id_rsa.pub:/root/.ssh/authorized_keys
+      - $PICTURES_PATH/Pictures/:/data/Pictures:ro
+      - $MOVIES_PATH:/data/movies:ro
+      - $GAMES_PATH:/data/games:ro
+      - $MUSIC_ROOT_PATH:/data/music:ro
+      - $SELF_IMPROVEMENT_PATH:/data/self_improvement:ro
+      - $EBOOKS_AUDIOBOOKS_PATH:/data/ebooks_audiobooks:ro
+    environment:
+      PUID: $PUID_USER
+      PGID: $PGID_USER
+    ports:
+      #- "873:873" #uncomment if want to use rsyncd
+      - "9000:22"
+    restart: always
+  #######################
+  samba:
+    image: crazymax/samba:latest
+    container_name: samba
+    environment:
+      TZ: $TZ
+      CONFIG_FILE: /config.yml
+      # default is the private ranges only; 100.64.0.0/10 = tailscale
+      SAMBA_HOSTS_ALLOW: "127.0.0.0/8 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 100.64.0.0/10"
+    ports:
+      - "445:445/tcp"
+    volumes:
+      - $MOVIES_PATH:/share1:ro
+      - $TV_SHOWS_PATH:/share2:ro
+      - $SELF_IMPROVEMENT_PATH:/share3:ro
+      - $PICTURES_PATH:/share5
+      - $MUSIC_PATH:/share6
+      - $SWITCH_PATH:/share7
+    configs:
+      - source: samba_config
+        target: /config.yml
+    secrets:
+      - samba_password
+    restart: always
+
+  scrutiny:
+    container_name: scrutiny
+    image: ghcr.io/analogj/scrutiny:master-omnibus
+    ports:
+    - 8033:8080 # webapp
+    - 8086:8086 # influxdb admin
+    cap_add:
+      - SYS_RAWIO
+    volumes:
+      - /run/udev:/run/udev:ro
+      - $DOCKER_CONFIG_PATH/scrutiny/config:/opt/scrutiny/config
+      - $DOCKER_CONFIG_PATH/scrutiny/influxdb:/opt/scrutiny/influxdb
+    devices:      # in the VM: sda = boot disk, sdb..sde = the 4 passthrough disks
+      - "/dev/sda"
+      - "/dev/sdb"
+      - "/dev/sdc"
+      - "/dev/sdd"
+      - "/dev/sde"
+    environment:
+      - COLLECTOR_CRON_SCHEDULE="*/5 * * * *"
+      - PUID=$PUID_USER
+      - PGID=$PGID_USER
+      - TZ=$TZ
+      - WATCHTOWER_CLEANUP=true
+
+configs:
+  samba_config:
+    file: ./samba/config.yml
+
+secrets:
+  samba_password:
+    environment: SAMBA_PASSWORD
