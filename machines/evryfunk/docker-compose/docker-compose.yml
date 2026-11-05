@@ -407,43 +407,65 @@ services:
     labels:
       com.centurylinklabs.watchtower.enable: true
   #
-  transmission:
-    image: haugene/transmission-openvpn
-    container_name: transmission
+  # Transmission runs inside gluetun's network namespace (all traffic goes through the PIA VPN).
+  # Published ports live on gluetun; traefik reaches the UI via host.docker.internal:9091 (dynamic_tls.yml).
+  gluetun:
+    image: qmcgaw/gluetun
+    container_name: gluetun
     cap_add:
       - NET_ADMIN
-    devices:
-      - /dev/net/tun
-    ports:
-      - "9091:9091"
-      - "8888:8888"
     dns:
-      - $PIHOLE_DOCKER_SUB_IP_DNS
+      - 1.1.1.1
       - 8.8.8.8
-      - 8.8.4.4
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    ports:
+      - 9091:9091       # transmission UI
+      - 8888:8888/tcp   # gluetun http proxy
+      - 8388:8388/tcp
+      - 8388:8388/udp
+      - 51413:51413
+      - 29051:29051
+      - 51414:51413/udp
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - $TORRENT_PATH:/data
-    logging:
-      driver: json-file
-      options:
-        max-size: 10m
+      - $DOCKER_CONFIG_PATH/gluetun:/gluetun
     environment:
-      - CREATE_TUN_DEVICE=true
-      - WEBPROXY_ENABLED=false
-      - TRANSMISSION_WEB_UI=transmission-web-control
-      - TRANSMISSION_INCOMPLETE_DIR=/data/transmission/incomplete
-      - TRANSMISSION_INCOMPLETE_DIR_ENABLED=true
-      - TRANSMISSION_BLOCKLIST_ENABLED=true
-      - TRANSMISSION_BLOCKLIST_URL=$TRANSMISSION_BLOCKLIST_URL
-      - DISABLE_PORT_UPDATER=true
-      - OPENVPN_PROVIDER=PIA
-      - OPENVPN_CONFIG=belgium
-      - OPENVPN_USERNAME=$PIA_USERNAME
+      # See https://github.com/qdm12/gluetun-wiki/tree/main/setup#setup
+      - VPN_PORT_FORWARDING=true
+      - VPN_PORT_FORWARDING_PROVIDER="private internet access"
+      - VPN_SERVICE_PROVIDER=pia
+      - VPN_TYPE=openvpn
+      - OPENVPN_USER=$PIA_USERNAME
       - OPENVPN_PASSWORD=$PIA_PASSWORD
-      - OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60
-      - LOCAL_NETWORK=$LOCAL_NETWORK
+      # only some PIA regions support port forwarding
+      - SERVER_REGIONS=Netherlands,Germany,Switzerland
+      - VPN_PORT_FORWARDING_UP_COMMAND=/bin/sh -c "/gluetun/set-transmission-port.sh {{PORT}}"
+      - TZ=$TZ
+      - UPDATER_PERIOD=24h
     restart: unless-stopped
+    labels:
+      com.centurylinklabs.watchtower.enable: false
+
+  transmission:
+    image: lscr.io/linuxserver/transmission:latest
+    container_name: transmission
+    network_mode: service:gluetun
+    depends_on:
+      - gluetun
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - DOCKER_MODS=linuxserver/mods:transmission-trguing
+    # ports are published by gluetun
+    volumes:
+      - $TORRENT_PATH/downloads:/downloads
+      - $TORRENT_PATH/data:/data
+      - $TORRENT_PATH/config:/config
+      - $TORRENT_PATH/watch:/watch
+    restart: unless-stopped
+    labels:
+      com.centurylinklabs.watchtower.enable: false
 
   homer:
     image: b4bz/homer:latest
