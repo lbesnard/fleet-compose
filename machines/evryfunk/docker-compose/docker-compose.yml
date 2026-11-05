@@ -732,19 +732,19 @@ services:
     ports:
       - 3307:3306
 
-  mealie_v1:
-    container_name: mealie_v1
-    image: ghcr.io/mealie-recipes/mealie
-    restart: unless-stopped
-    ports:
-      - 9926:9000
-    environment:
-      PUID: 1000
-      PGID: 1000
-      TZ: $TZ
-      OPENAI_API_KEY: $OPENAI_API_KEY
-    volumes:
-      - $DOCKER_CONFIG_PATH/mealie_v1/data/:/app/data
+  # mealie_v1:
+  #   container_name: mealie_v1
+  #   image: ghcr.io/mealie-recipes/mealie
+  #   restart: unless-stopped
+  #   ports:
+  #     - 9926:9000
+  #   environment:
+  #     PUID: 1000
+  #     PGID: 1000
+  #     TZ: $TZ
+  #     OPENAI_API_KEY: $OPENAI_API_KEY
+  #   volumes:
+  #     - $DOCKER_CONFIG_PATH/mealie_v1/data/:/app/data
 
   mealie:
     # image: ghcr.io/mealie-recipes/mealie:v2.7.1 #
