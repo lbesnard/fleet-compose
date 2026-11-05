@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # fleet <decrypt|encrypt|vendor|sync|rekey|keygen|edit> [machine]
-#   machine: beefunk | brownfunk | evryfunk | evryfunknuc | all
+#   machine: beefunk | brownfunk | evryfunk | evryfunknuc | {brownfunk,beefunk}-{nas,media} | all
 #   default: $FLEET_MACHINE, else the choice saved by install.sh; encrypt defaults to all
 set -euo pipefail
 cd "$(dirname "$(readlink -f "$0")")"

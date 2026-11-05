@@ -16,7 +16,7 @@ _fleet_machines() {
   if [[ -d $d/machines ]]; then
     machines=($d/machines/*(/N:t))
   else
-    machines=(beefunk brownfunk evryfunk evryfunknuc)
+    machines=(beefunk brownfunk evryfunk evryfunknuc brownfunk-nas brownfunk-media beefunk-nas beefunk-media)
   fi
   [[ $1 == all ]] && machines+=(all)
   _describe -t machines 'machine' machines

@@ -11,7 +11,7 @@ _fleet_machines() {
   if [[ -d $d/machines ]]; then
     ls -1 "$d/machines" 2>/dev/null
   else
-    echo "beefunk brownfunk evryfunk evryfunknuc"
+    echo "beefunk brownfunk evryfunk evryfunknuc brownfunk-nas brownfunk-media beefunk-nas beefunk-media"
   fi
 }
 

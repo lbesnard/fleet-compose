@@ -8,6 +8,12 @@ Docker Compose stacks for the three home machines, with secrets encrypted in-rep
 | brownfunk   | bfunk     | `machines/brownfunk/` |
 | evryfunk    | efunk     | `machines/evryfunk/`  |
 | evryfunknuc    | evryfunknuc  | `machines/evryfunknuc/`  |
+| brownfunk-nas   | bf-nas (Fleet-Control VM)   | `machines/brownfunk-nas/`   |
+| brownfunk-media | bf-media (Fleet-Control VM) | `machines/brownfunk-media/` |
+| beefunk-nas     | bee-nas (Fleet-Control VM)  | `machines/beefunk-nas/`     |
+| beefunk-media   | bee-media (Fleet-Control VM)| `machines/beefunk-media/`   |
+
+`<host>-nas` / `<host>-media` are the VMs that [Fleet-Control](../Fleet-Control) (terraform + ansible) creates on the Proxmox hosts `brownfunk` / `beefunk`. They replace the single-machine `brownfunk` / `beefunk` stacks, which are kept until the migration is done. Split: **nas** = samba, rsync-server, scrutiny (next to the disks); **media** = everything else, with traefik. pihole / wireguard / duckdns belong to the `<host>-net` VM and are not in this repo yet. Jellyfin runs in its own LXC (`lxc_fleet.jellyfin`), traefik routes to it from `traefik/dynamic_tls.yml`.
 
 Each machine dir holds `docker-compose/…`. Secrets are committed as `<file>.vault`; the plaintext is gitignored.
 `secrets.yml` lists which files are secret; `vendor.yml` pins third-party repos (ifm, explorer, homer-icons) that are cloned, not committed.
