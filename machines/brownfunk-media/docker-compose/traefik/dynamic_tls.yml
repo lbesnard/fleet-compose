@@ -1,0 +1,65 @@
+# entryPoints:
+#   websecure:
+#     address: ":443"
+#     transport:
+#       respondingTimeouts:
+#         readTimeout: 60s
+#         idleTimeout: 300s
+#
+tls:
+  certificates:
+    - certFile: /certs/brownfunk.crt
+      keyFile: /certs/brownfunk.key
+
+  # Optional: Forces Traefik to always default to this cert for all local hosts
+  stores:
+    default:
+      defaultCertificate:
+        certFile: /certs/brownfunk.crt
+        keyFile: /certs/brownfunk.key
+
+# Plain http: redirect everything to https. Priority 1 so that the explicit
+# `web` routers (homer-lan on the bare brownfunk.lan host) win.
+http:
+  routers:
+    # scrutiny runs on the brownfunk-nas VM (next to the disks); no traefik there, so route to it.
+    scrutiny:
+      rule: "Host(`scrutiny.brownfunk.lan`) || Host(`scrutiny.brownfunk.home`) || Host(`scrutiny.brownfunk.local`) || Host(`scrutiny.funkybrownfunk.duckdns.org`)"
+      entryPoints:
+        - "websecure"
+      tls: {}
+      service: scrutiny-nas
+
+    # Jellyfin runs in its own LXC (Fleet-Control terraform, lxc_fleet.jellyfin), not in docker.
+    jellyfin:
+      rule: "Host(`jellyfin.brownfunk.lan`) || Host(`jellyfin.brownfunk.home`) || Host(`jellyfin.brownfunk.local`) || Host(`jellyfin.funkybrownfunk.duckdns.org`)"
+      entryPoints:
+        - "websecure"
+      tls: {}
+      service: jellyfin-lxc
+
+    http-to-https:
+      rule: "HostRegexp(`.+`)"
+      entryPoints:
+        - "web"
+      priority: 1
+      middlewares:
+        - "redirect-to-https"
+      service: noop@internal
+
+  middlewares:
+    redirect-to-https:
+      redirectScheme:
+        scheme: https
+        permanent: true
+
+  services:
+    scrutiny-nas:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.1.201:8033"
+
+    jellyfin-lxc:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.1.205:8096"
