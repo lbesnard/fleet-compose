@@ -131,6 +131,12 @@ sections:
         url: https://mealie.funkyevryfunk.duckdns.org
         tags: [app]
 
+      - title: Tube Archivist
+        description: YouTube archive
+        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/tube-archivist.png
+        url: https://tubearchivist.funkyevryfunk.duckdns.org
+        tags: [app]
+
       - title: Tandoor
         description: Recipes
         icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/tandoor-recipes.png

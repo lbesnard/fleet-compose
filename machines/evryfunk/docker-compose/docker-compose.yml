@@ -768,6 +768,85 @@ services:
       OPENAI_API_KEY: $OPENAI_API_KEY
       BASE_URL: https://mealie.evryfunk.home
 
+  tubearchivist:
+    image: bbilly1/tubearchivist:latest
+    container_name: tubearchivist
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - $TUBEARCHIVIST_PATH:/youtube
+      - $DOCKER_CONFIG_PATH/tubearchivist/cache:/cache
+    environment:
+      - ES_URL=http://archivist-es:9200
+      - REDIS_CON=redis://archivist-redis:6379
+      - HOST_UID=$PUID_USER
+      - HOST_GID=$PGID_USER
+      - TA_HOST=https://tubearchivist.${TRAEFIK_DUCKDNS_DOMAIN}.duckdns.org https://tubearchivist.${SERVER_DOMAIN}.lan https://tubearchivist.${SERVER_DOMAIN}.home https://tubearchivist.${SERVER_DOMAIN}.local http://${SERVER_LAN_IP}:8000
+      - TA_USERNAME=$TA_USERNAME
+      - TA_PASSWORD=$TA_PASSWORD
+      - ELASTIC_PASSWORD=$TA_ELASTIC_PASSWORD
+      - TZ=${TZ}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 2m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      - archivist-es
+      - archivist-redis
+    networks:
+      - default
+      - proxy
+    labels:
+      com.centurylinklabs.watchtower.enable: true
+      traefik.enable: true
+      traefik.docker.network: proxy
+      traefik.http.routers.tubearchivist.rule: Host(`tubearchivist.${SERVER_DOMAIN}.lan`) || Host(`tubearchivist.${SERVER_DOMAIN}.home`) || Host(`tubearchivist.${SERVER_DOMAIN}.local`) || Host(`tubearchivist.${TRAEFIK_DUCKDNS_DOMAIN}.duckdns.org`)
+      traefik.http.routers.tubearchivist.entrypoints: websecure
+      traefik.http.routers.tubearchivist.tls: true
+      traefik.http.services.tubearchivist.loadbalancer.server.port: 8000
+
+  archivist-redis:
+    image: redis:latest
+    container_name: archivist-redis
+    restart: unless-stopped
+    expose:
+      - "6379"
+    volumes:
+      - $DOCKER_CONFIG_PATH/tubearchivist/redis:/data
+    depends_on:
+      - archivist-es
+    labels:
+      com.centurylinklabs.watchtower.enable: true
+
+  # Elasticsearch needs a higher mmap limit on the host, or it fails to start:
+  #   sudo sysctl -w vm.max_map_count=262144
+  # and to make it survive a reboot:
+  #   echo "vm.max_map_count=262144" | sudo tee /etc/sysctl.d/99-elasticsearch.conf
+  archivist-es:
+    image: bbilly1/tubearchivist-es:latest # official elasticsearch image with the version TA pins
+    container_name: archivist-es
+    restart: unless-stopped
+    environment:
+      - ELASTIC_PASSWORD=$TA_ELASTIC_PASSWORD
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+      - xpack.security.enabled=true
+      - discovery.type=single-node
+      - path.repo=/usr/share/elasticsearch/data/snapshot
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - $DOCKER_CONFIG_PATH/tubearchivist/es:/usr/share/elasticsearch/data
+    expose:
+      - "9200"
+    labels:
+      # ES major upgrades need a matching TA release; update by hand, not via watchtower
+      com.centurylinklabs.watchtower.enable: false
+
   filebrowserquantum:
     image: gtstef/filebrowser:latest
     container_name: filebrowserquantum
