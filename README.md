@@ -58,6 +58,10 @@ Warning: `./fleet decrypt` overwrites local plaintext with the vault content. Ru
 
 Commits are checked by [pre-commit](https://pre-commit.com) (`.pre-commit-config.yaml`): staged plaintext secrets, unencrypted `.vault` files (`scripts/check-secrets.sh`), invalid YAML and merge-conflict markers are refused. Install once with `pipx install pre-commit` (or `brew install pre-commit`) then `pre-commit install`; `install.sh` runs the latter. Check everything with `pre-commit run --all-files`.
 
+## Rotating TLS keys / ACME account
+
+If `acme.json` or a `certs/*.key` leaked, see [docs/rotate-tls-and-acme.md](docs/rotate-tls-and-acme.md) (revoke, force a new account, regenerate, re-vault).
+
 ## The vault password
 
 `~/.config/fleet-compose/vault-pass` is the single key to everything. It is **not** in the repo.
