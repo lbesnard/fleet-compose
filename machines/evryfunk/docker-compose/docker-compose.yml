@@ -476,8 +476,8 @@ services:
       - TZ=${TZ}
       - WATCHTOWER_CLEANUP=true
     volumes:
-      - $DOCKER_CONFIG_PATH/homer/config.yml:/www/config.yml
-      - $DOCKER_CONFIG_PATH/homer/local/assets/:/www/assets
+      - ./homer/local/assets/config.yml:/www/config.yml
+      - ./homer/local/assets/:/www/assets
     ports:
       - 8080:8080 # was 80:8080, port 80 now belongs to traefik
     networks:
@@ -772,6 +772,9 @@ services:
     image: bbilly1/tubearchivist:latest
     container_name: tubearchivist
     restart: unless-stopped
+    # v0.6.0+: no HOST_UID/HOST_GID any more, TA no longer chowns anything. Run as 1000 and, once:
+    #   sudo chown -R 1000:1000 /media/efunk_6tb_1/tube_archivist /opt/docker_config/tubearchivist/{cache,es}
+    user: "${PUID_USER}:${PGID_USER}"
     ports:
       - "8000:8000"
     volumes:
@@ -780,15 +783,13 @@ services:
     environment:
       - ES_URL=http://archivist-es:9200
       - REDIS_CON=redis://archivist-redis:6379
-      - HOST_UID=$PUID_USER
-      - HOST_GID=$PGID_USER
-      - TA_HOST=https://tubearchivist.${TRAEFIK_DUCKDNS_DOMAIN}.duckdns.org https://tubearchivist.${SERVER_DOMAIN}.lan https://tubearchivist.${SERVER_DOMAIN}.home https://tubearchivist.${SERVER_DOMAIN}.local http://${SERVER_LAN_IP}:8000
+      - TA_HOST=https://tubearchivist.${TRAEFIK_DUCKDNS_DOMAIN}.duckdns.org https://tubearchivist.${SERVER_DOMAIN}.lan https://tubearchivist.${SERVER_DOMAIN}.home https://tubearchivist.${SERVER_DOMAIN}.local http://${SERVER_DOMAIN}.home:8000 http://${SERVER_LAN_IP}:8000
       - TA_USERNAME=$TA_USERNAME
       - TA_PASSWORD=$TA_PASSWORD
       - ELASTIC_PASSWORD=$TA_ELASTIC_PASSWORD
       - TZ=${TZ}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health/"]
       interval: 2m
       timeout: 10s
       retries: 3
