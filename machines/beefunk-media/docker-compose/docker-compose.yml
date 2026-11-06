@@ -1404,6 +1404,9 @@ services:
     image: lscr.io/linuxserver/transmission:latest
     container_name: transmission
     network_mode: service:gluetun
+    depends_on:
+      gluetun:
+        condition: service_healthy
     environment:
     - PUID=1000
     - PGID=1000
