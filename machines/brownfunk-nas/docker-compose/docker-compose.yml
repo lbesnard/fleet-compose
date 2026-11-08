@@ -6,9 +6,16 @@ networks:
 
 services:
   rsync-server:
-    image: quentintin/rsync-server
+    image: lscr.io/linuxserver/openssh-server:latest
+    environment:
+      PUID: $PUID_USER
+      PGID: $PGID_USER
+      USER_NAME: backup
+      PUBLIC_KEY_FILE: /pubkeys/id_rsa.pub
+      PASSWORD_ACCESS: "false"
+      SUDO_ACCESS: "false"
     volumes:
-    - $HOME/.ssh/id_rsa.pub:/root/.ssh/authorized_keys
+    - $HOME/.ssh/id_rsa.pub:/pubkeys/id_rsa.pub:ro
     - $EBOOKS_AUDIOBOOKS_PATH:/data/ebooks_audiobooks:ro
     - $EBOOKS_FR_PATH:/data/ebooks_fr:ro
     - $GAMES_PATH:/data/games:ro
@@ -27,13 +34,10 @@ services:
     - $PODCASTS_PATH:/data/podcasts:ro
     - $NEXTCLOUD_DATA_PATH:/data/nextcloud:ro
     - $TORRENT_PATH/data/games:/data/games_torrent:ro
-    environment:
-      PUID: $PUID_USER
-      PGID: $PGID_USER
     networks:
       frontend: null
     ports:
-    - '9000:22'
+    - '9000:2222'
     restart: always
 
   samba:

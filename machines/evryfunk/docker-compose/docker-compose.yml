@@ -279,22 +279,26 @@ services:
       com.centurylinklabs.watchtower.enable: true
   #
   rsync-server:
-    image: quentintin/rsync-server
+    image: lscr.io/linuxserver/openssh-server:latest
     container_name: rsync-server
+    environment:
+      PUID: $PUID_USER
+      PGID: $PGID_USER
+      USER_NAME: backup
+      PUBLIC_KEY_FILE: /pubkeys/id_rsa.pub
+      PASSWORD_ACCESS: "false"
+      SUDO_ACCESS: "false"
     volumes:
-      - $HOME/.ssh/id_rsa.pub:/root/.ssh/authorized_keys
+      - $HOME/.ssh/id_rsa.pub:/pubkeys/id_rsa.pub:ro
       - $PICTURES_PATH:/data/pictures:ro
       - $IMMICH_PATH:/data/immich:ro
       - $DOCKER_CONFIG_PATH:/data/docker:ro
       - $NEXTCLOUD_DATA_PATH:/data/nextcloud:ro
       - $TORRENT_PATH/PS4:/data/torrent_ps4:ro
       - /media/efunk_4tb_1/lingodiary/:/data/lingodiary/
-    environment:
-      PUID: $PUID_USER
-      PGID: $PGID_USER
     ports:
       #- "873:873" #uncomment if want to use rsyncd
-      - "9000:22"
+      - "9000:2222"
     restart: always
 
   prowlarr:
