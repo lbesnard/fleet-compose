@@ -1206,7 +1206,7 @@ services:
     environment:
       PUID: $PUID_USER
       PGID: $PGID_USER
-      USER_NAME: root
+      USER_NAME: backup
       PUBLIC_KEY_FILE: /pubkeys/id_rsa.pub
       PASSWORD_ACCESS: "false"
       SUDO_ACCESS: "false"
