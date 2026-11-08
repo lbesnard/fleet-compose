@@ -527,7 +527,8 @@ services:
 
 
   nextcloud:
-    image: lscr.io/linuxserver/nextcloud:34.0.0-ls435
+    image: lscr.io/linuxserver/nextcloud:35.0.2-ls461
+    # image: lscr.io/linuxserver/nextcloud:34.0.0-ls435
     container_name: nextcloud
     environment:
     - WATCHTOWER_CLEANUP=true
