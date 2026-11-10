@@ -82,6 +82,10 @@ services:
       # read the config files in /etc/dnsmasq.d (off by default in pihole v6)
       FTLCONF_misc_etc_dnsmasq_d: "true"
       FTLCONF_webserver_api_password: $PIHOLE_PWD
+      # per-client rate limit (default 1000/60s). Refused queries still count, so one client
+      # retrying a failing lookup can lock itself out and flood the query log.
+      FTLCONF_dns_rateLimit_count: "5000"
+      FTLCONF_dns_rateLimit_interval: "60"
       # NOT ENABLED. Values copied from evryfunk's pihole.toml: adapt them to this machine's
       # pihole.toml before uncommenting (and add FTLCONF_misc_etc_dnsmasq_d: "true" if needed).
       # Non-default settings kept as env vars instead of mounting pihole.toml (pihole rewrites it
@@ -99,6 +103,9 @@ services:
       - ./pihole/etc-dnsmasq.d/:/etc/dnsmasq.d/
     cap_add:
       - SYS_NICE
+    # cap the query log: it lived in the container layer and grew to 12GB in a few days
+    tmpfs:
+      - /var/log/pihole:size=256m
     networks:
       proxy: {}
       frontend:
