@@ -292,7 +292,8 @@ services:
       ND_ENABLEGRAVATAR: "true"
       WATCHTOWER_CLEANUP: "true"
     volumes:
-      - $DOCKER_CONFIG_PATH/navidrome:/data
+      # - $DOCKER_CONFIG_PATH/navidrome:/data
+      - $DOCKER_CONFIG_2_PATH/navidrome:/data
       - $MUSIC_PATH:/music:ro
     dns:
       - $PIHOLE_DOCKER_SUB_IP_DNS
