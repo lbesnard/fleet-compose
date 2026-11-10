@@ -183,7 +183,11 @@ services:
   #################
   nextcloud:
     # to update, bump the major version one by one, i.e. 30->31->32 ...
-    image: linuxserver/nextcloud:31.0.0-ls373 #30.0.6-ls370
+    # image: linuxserver/nextcloud:31.0.0-ls373 #30.0.6-ls370
+    # image: lscr.io/linuxserver/nextcloud:previous-32.0.8-ls91
+    # image: lscr.io/linuxserver/nextcloud:previous-33.0.8-ls114
+    # image: lscr.io/linuxserver/nextcloud:previous-34.0.5-ls123
+    image: lscr.io/linuxserver/nextcloud:35.0.2-ls461
     container_name: nextcloud
     environment:
       - PUID=1000
