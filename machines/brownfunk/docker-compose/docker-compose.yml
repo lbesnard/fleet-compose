@@ -1226,6 +1226,8 @@ services:
       - $MOVIES_FR_PATH:/data/Movies(French):ro
       - $MOVIES_SPORT_PATH:/data/Sport:ro
       - $TV_SHOWS_PATH:/data/TV Shows:ro
+      # writable: target of `funk-send` (dotfiles) pushing converted shows from beefunk
+      - $TV_SHOWS_PATH:/upload/TV Shows
       - $MUSIC_ROOT_PATH:/data/music:ro
       - $PICTURES_PATH:/data/pictures:ro
       - $PIWIGO_CONFIG_PATH/piwigo/www/gallery/upload:/data/pictures_piwigo:ro
