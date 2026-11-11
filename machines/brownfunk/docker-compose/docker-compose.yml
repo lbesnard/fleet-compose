@@ -1212,6 +1212,7 @@ services:
       PUID: $PUID_USER
       PGID: $PGID_USER
       USER_NAME: backup
+      DOCKER_MODS: linuxserver/mods:openssh-server-rsync  # rsync binary, needed by funk-send
       PUBLIC_KEY_FILE: /pubkeys/id_rsa.pub
       PASSWORD_ACCESS: "false"
       SUDO_ACCESS: "false"
