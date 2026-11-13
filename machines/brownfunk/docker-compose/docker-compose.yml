@@ -782,6 +782,9 @@ services:
       - 1.1.1.1
       - 8.8.8.8
       - $SERVER_LAN_IP
+    networks:
+      frontend: null
+      proxy: null
     depends_on:
       - pihole
     ports:
@@ -789,6 +792,10 @@ services:
     restart: unless-stopped
     labels:
       com.centurylinklabs.watchtower.enable: true
+      traefik.enable: "true"
+      traefik.http.routers.flaresolverr.entrypoints: websecure
+      traefik.http.routers.flaresolverr.tls: "true"
+      traefik.http.services.flaresolverr.loadbalancer.server.port: "8191"
 
   gluetun:
     image: qmcgaw/gluetun

@@ -414,6 +414,10 @@ services:
     restart: unless-stopped
     labels:
       com.centurylinklabs.watchtower.enable: true
+      traefik.enable: "true"
+      traefik.http.routers.flaresolverr.entrypoints: websecure
+      traefik.http.routers.flaresolverr.tls: "true"
+      traefik.http.services.flaresolverr.loadbalancer.server.port: "8191"
   #
   # Transmission runs inside gluetun's network namespace (all traffic goes through the PIA VPN).
   # Published ports live on gluetun; traefik reaches the UI via host.docker.internal:9091 (dynamic_tls.yml).
