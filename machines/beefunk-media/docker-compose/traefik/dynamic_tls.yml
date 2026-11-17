@@ -96,10 +96,13 @@ http:
         servers:
           - url: "http://192.168.8.205:8096"
 
+    # Goes through the local immich-cache container (same `proxy` network),
+    # which forwards to evryfunk.home:2283 and caches photos/videos on beefunk.
+    # To bypass the cache, point this back at "http://evryfunk.home:2283".
     immich-remote:
       loadBalancer:
         servers:
-          - url: "http://evryfunk.home:2283"
+          - url: "http://immich-cache:80"
 
     lingodiary-remote:
       loadBalancer:
