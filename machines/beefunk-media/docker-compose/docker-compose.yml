@@ -780,6 +780,7 @@ services:
       - $AUDIOBOOKS_PATH:/audiobooks
       - $DOCKER_CONFIG_PATH/audiobookshelf:/config
       - $DOCKER_CONFIG_PATH/audiobookshelf_metadata>:/metadata
+      - $PODCASTS_PATH:/podcasts
     networks:
       - proxy
     labels:
