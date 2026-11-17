@@ -1200,6 +1200,30 @@ services:
       - "traefik.http.routers.immich-kiosk.entrypoints=websecure"
       - "traefik.http.routers.immich-kiosk.tls=true"
       - "traefik.http.services.immich-kiosk.loadbalancer.server.port=3000"
+
+  # Local cache for the remote Immich on evryfunk. Traefik's immich router
+  # (traefik/dynamic_tls.yml, service immich-remote) points here instead of
+  # straight at evryfunk; photos/thumbnails/videos are kept on this VM's disk,
+  # everything else passes through. See immich-cache/nginx.conf.
+  immich-cache:
+    container_name: immich-cache
+    image: nginx:alpine
+    dns:
+      - $SERVER_LAN_IP   # pihole resolves evryfunk.home to its Tailscale IP
+      - 1.1.1.1
+    volumes:
+      - ./immich-cache/nginx.conf:/etc/nginx/nginx.conf:ro
+      - immich_cache:/var/cache/nginx
+    networks:
+      - proxy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/api/server/ping"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
   digikam:
     container_name: digikam
     image: lscr.io/linuxserver/digikam:latest
@@ -1528,6 +1552,7 @@ services:
   #     - "com.centurylinklabs.watchtower.enable=true"
 
 volumes:
+  immich_cache:   # local VM disk, not NFS
   # netdatalib:
   # netdatacache:
   moode_mnt_nfs:
