@@ -1308,6 +1308,8 @@ services:
   # (traefik/dynamic_tls.yml, service immich-remote) points here instead of
   # straight at evryfunk; photos/thumbnails/videos are kept on local disk,
   # everything else passes through. See immich-cache/nginx.conf.
+  # Purge the cache (e.g. after bulk edits / regenerated thumbnails):
+  #   docker compose exec immich-cache sh -c 'rm -rf /var/cache/nginx/immich/*'
   immich-cache:
     container_name: immich-cache
     image: nginx:alpine
