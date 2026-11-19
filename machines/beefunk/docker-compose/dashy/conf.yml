@@ -319,6 +319,12 @@ sections:
         url: http://traefik.funkybeefunk.duckdns.org
         tags: [geek]
 
+      - title: OliveTin
+        description: Run backups, docker and disk actions on beefunk
+        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/olivetin.png
+        url: https://olivetin.funkybeefunk.duckdns.org
+        tags: [geek]
+
       - title: WG-Easy
         description: Wireguard Easy Server
         icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/wireguard.png
