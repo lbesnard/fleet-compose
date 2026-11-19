@@ -61,6 +61,13 @@ http:
       tls: {}
       service: jackett-remote
 
+    olivetin:
+      rule: "Host(`olivetin.beefunk.lan`) || Host(`olivetin.beefunk.home`) || Host(`olivetin.beefunk.local`) || Host(`olivetin.funkybeefunk.duckdns.org`)"
+      entryPoints:
+        - "websecure"
+      tls: {}
+      service: olivetin-host
+
   services:
     # Goes through the local immich-cache container (same `proxy` network),
     # which forwards to evryfunk.home:2283 and caches photos/videos locally.
@@ -69,6 +76,13 @@ http:
       loadBalancer:
         servers:
           - url: "http://immich-cache:80"
+
+    # OliveTin runs as a systemd service on the host (machines/beefunk/olivetin), not in a container.
+    # It does its own login (authLocalUsers), so no traefik middleware here.
+    olivetin-host:
+      loadBalancer:
+        servers:
+          - url: "http://beefunk.lan:1337"
 
     lingodiary-remote:
       loadBalancer:

@@ -9,6 +9,7 @@
 /machines/beefunk/docker-compose/mpd-dynamic/config/mpd_dynamic-blacklist.txt
 /machines/beefunk/docker-compose/copyparty/cfg/copyparty.conf
 /machines/beefunk/docker-compose/monitoring/docker-compose.yml
+/machines/beefunk/olivetin/config.yaml
 /machines/brownfunk/docker-compose/.env
 /machines/brownfunk/docker-compose/traefik/acme/acme.json
 /machines/brownfunk/docker-compose/traefik/certs/brownfunk.key

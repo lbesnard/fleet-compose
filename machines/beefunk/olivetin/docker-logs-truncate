@@ -1,0 +1,7 @@
+#!/bin/sh
+# Installed as /usr/local/sbin/docker-logs-truncate (root:root 0755); the ONLY thing OliveTin may sudo.
+set -eu
+for f in /var/lib/docker/containers/*/*-json.log; do
+    [ -f "$f" ] && truncate -s 0 "$f"
+done
+echo "docker json logs truncated"

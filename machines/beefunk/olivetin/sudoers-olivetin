@@ -1,0 +1,2 @@
+# /etc/sudoers.d/olivetin  (validated with visudo -cf by install.sh)
+lbesnard ALL=(root) NOPASSWD: /usr/local/sbin/docker-logs-truncate
